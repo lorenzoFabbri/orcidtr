@@ -53,18 +53,5 @@
 #'
 #' @export
 orcid_educations <- function(orcid_id, token = NULL) {
-  # Normalize and validate ORCID
-  orcid_id <- normalize_orcid(orcid_id)
-  validate_orcid(orcid_id, stop_on_error = TRUE)
-
-  # Make API request
-  response <- orcid_request(
-    endpoint = "educations",
-    orcid_id = orcid_id,
-    token = token,
-    base_url = orcid_base_url()
-  )
-
-  # Parse and return
-  parse_educations(response, orcid_id)
+  fetch_and_parse("educations", orcid_id, parse_educations, token)
 }

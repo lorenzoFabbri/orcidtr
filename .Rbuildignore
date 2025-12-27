@@ -12,3 +12,5 @@
 ^Makefile$
 ^docs$
 ^altdoc$
+^doc$
+^Meta$

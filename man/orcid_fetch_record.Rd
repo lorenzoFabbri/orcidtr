@@ -18,18 +18,41 @@ XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-
 requests. If NULL (default), checks the ORCID_TOKEN environment variable.
 Most public data is accessible without authentication.}
 
-\item{sections}{Character vector. Sections to fetch. Default is all available
-sections: c("employments", "educations", "works", "funding", "peer-reviews").
+\item{sections}{Character vector. Sections to fetch. Default is the most
+commonly used sections: c("employments", "educations", "works", "funding",
+"peer-reviews"). Available sections are:
+\itemize{
+\item Affiliations: "employments", "educations", "distinctions",
+"invited-positions", "memberships", "qualifications", "services",
+"research-resources"
+\item Activities: "works", "funding", "peer-reviews"
+\item Biographical: "person", "bio", "keywords", "researcher-urls",
+"external-identifiers", "other-names", "address", "email"
+}
 You can specify a subset to fetch only specific sections.}
 }
 \value{
-A named list with the following elements (each a data.table):
+A named list with the following possible elements (each a data.table):
 \describe{
-\item{employments}{Employment history (see \code{\link{orcid_employments}})}
-\item{educations}{Education history (see \code{\link{orcid_educations}})}
-\item{works}{Works/publications (see \code{\link{orcid_works}})}
-\item{funding}{Funding records (see \code{\link{orcid_funding}})}
-\item{peer_reviews}{Peer review activities (see \code{\link{orcid_peer_reviews}})}
+\item{employments}{Employment history}
+\item{educations}{Education history}
+\item{distinctions}{Distinctions and honors}
+\item{invited_positions}{Invited positions}
+\item{memberships}{Professional memberships}
+\item{qualifications}{Qualifications}
+\item{services}{Service activities}
+\item{research_resources}{Research resources}
+\item{works}{Works/publications}
+\item{funding}{Funding records}
+\item{peer_reviews}{Peer review activities}
+\item{person}{Complete person data}
+\item{bio}{Biography}
+\item{keywords}{Keywords}
+\item{researcher_urls}{Researcher URLs}
+\item{external_identifiers}{External identifiers}
+\item{other_names}{Other names}
+\item{address}{Address information}
+\item{email}{Email addresses}
 }
 Empty data.tables are returned for sections with no data.
 }

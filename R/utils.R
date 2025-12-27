@@ -203,3 +203,36 @@ has_env_var <- function(var) {
   val <- Sys.getenv(var, unset = "")
   nchar(val) > 0
 }
+
+
+#' Fetch and parse ORCID endpoint
+#'
+#' @description
+#' Helper function to reduce boilerplate in API endpoint functions.
+#' Validates ORCID, makes request, and applies parser function.
+#'
+#' @param endpoint Character string. API endpoint name.
+#' @param orcid_id Character string. ORCID identifier.
+#' @param parser Function. Parser function to apply to response.
+#' @param token Character string or NULL. Optional API token.
+#' @param ... Additional arguments passed to parser function.
+#'
+#' @return Result of parser function.
+#' @keywords internal
+#' @noRd
+fetch_and_parse <- function(endpoint, orcid_id, parser, token = NULL, ...) {
+  # Normalize and validate ORCID
+  orcid_id <- normalize_orcid(orcid_id)
+  validate_orcid(orcid_id, stop_on_error = TRUE)
+
+  # Make API request
+  response <- orcid_request(
+    endpoint = endpoint,
+    orcid_id = orcid_id,
+    token = token,
+    base_url = orcid_base_url()
+  )
+
+  # Parse and return
+  parser(response, orcid_id, ...)
+}

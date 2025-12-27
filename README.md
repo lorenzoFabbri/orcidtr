@@ -69,6 +69,34 @@ funding <- orcidtr::orcid_funding("0000-0002-1825-0097")
 
 # Fetch peer review activities
 reviews <- orcidtr::orcid_peer_reviews("0000-0002-1825-0097")
+
+# Fetch biographical data
+person <- orcidtr::orcid_person("0000-0002-1825-0097")
+bio <- orcidtr::orcid_bio("0000-0002-1825-0097")
+keywords <- orcidtr::orcid_keywords("0000-0002-1825-0097")
+
+# Fetch professional activities
+distinctions <- orcidtr::orcid_distinctions("0000-0002-1825-0097")
+memberships <- orcidtr::orcid_memberships("0000-0002-1825-0097")
+```
+
+### Search the ORCID Registry
+
+``` r
+# Search by name
+results <- orcidtr::orcid_search(
+  family_name = "Fabbri",
+  given_names = "Lorenzo"
+)
+
+# Search by affiliation
+results <- orcidtr::orcid_search(affiliation_org = "Stanford University")
+
+# Search by DOI
+results <- orcidtr::orcid_doi("10.1371/journal.pone.0001543")
+
+# Advanced Solr query
+results <- orcidtr::orcid("family-name:Smith AND affiliation-org-name:MIT")
 ```
 
 ### Fetch Complete Record
@@ -132,15 +160,61 @@ works <- orcidtr::orcid_works("0000-0002-1825-0097", token = "your-token")
 
 ## Supported Data Types
 
+### Employment and Education
+
+| Function              | Description        | API Endpoint   |
+|-----------------------|--------------------|----------------|
+| `orcid_employments()` | Employment history | `/employments` |
+| `orcid_educations()`  | Education records  | `/educations`  |
+
+### Professional Activities
+
 | Function | Description | API Endpoint |
 |----|----|----|
-| `orcid_employments()` | Employment history | `/employments` |
-| `orcid_educations()` | Education records | `/educations` |
-| `orcid_works()` | Publications, datasets, preprints | `/works` |
-| `orcid_funding()` | Grants and funding | `/fundings` |
-| `orcid_peer_reviews()` | Peer review activities | `/peer-reviews` |
-| `orcid_fetch_record()` | All sections combined | Multiple endpoints |
-| `orcid_fetch_many()` | Batch fetch for multiple ORCIDs | Multiple endpoints |
+| `orcid_distinctions()` | Distinctions and honors | `/distinctions` |
+| `orcid_invited_positions()` | Invited positions | `/invited-positions` |
+| `orcid_memberships()` | Professional memberships | `/memberships` |
+| `orcid_qualifications()` | Qualifications | `/qualifications` |
+| `orcid_services()` | Service activities | `/services` |
+| `orcid_research_resources()` | Research resources | `/research-resources` |
+
+### Works and Activities
+
+| Function               | Description                       | API Endpoint    |
+|------------------------|-----------------------------------|-----------------|
+| `orcid_works()`        | Publications, datasets, preprints | `/works`        |
+| `orcid_funding()`      | Grants and funding                | `/fundings`     |
+| `orcid_peer_reviews()` | Peer review activities            | `/peer-reviews` |
+| `orcid_activities()`   | All activities in one call        | `/activities`   |
+
+### Biographical Data
+
+| Function | Description | API Endpoint |
+|----|----|----|
+| `orcid_person()` | Complete person data | `/person` |
+| `orcid_bio()` | Biography text | `/biography` |
+| `orcid_keywords()` | Researcher keywords | `/keywords` |
+| `orcid_researcher_urls()` | Researcher URLs | `/researcher-urls` |
+| `orcid_external_identifiers()` | External IDs (Scopus, etc.) | `/external-identifiers` |
+| `orcid_other_names()` | Alternative names | `/other-names` |
+| `orcid_address()` | Address/country | `/address` |
+| `orcid_email()` | Email addresses | `/email` |
+
+### Search Functions
+
+| Function         | Description                | API Endpoint |
+|------------------|----------------------------|--------------|
+| `orcid()`        | Flexible Solr query search | `/search`    |
+| `orcid_search()` | User-friendly named search | `/search`    |
+| `orcid_doi()`    | Search by DOI              | `/search`    |
+
+### Utilities
+
+| Function               | Description                     | API Endpoint       |
+|------------------------|---------------------------------|--------------------|
+| `orcid_fetch_record()` | Fetch complete record           | Multiple endpoints |
+| `orcid_fetch_many()`   | Batch fetch for multiple ORCIDs | Multiple endpoints |
+| `orcid_ping()`         | Check API status                | Base URL           |
 
 ## Data Structure
 

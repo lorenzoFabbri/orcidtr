@@ -1,6 +1,2 @@
 - [ ] Check out how rhub v2 works
-- [ ] Fetch biographical information
-- [ ] Fetch professional activities (e.g., distinctions)
-- [ ] Fetch certifications, licenses
-- [ ] Fetch individual detailed work details
 - [ ] Local caching for repeated queries

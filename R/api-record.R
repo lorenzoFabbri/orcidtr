@@ -10,17 +10,40 @@
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
 #'   Most public data is accessible without authentication.
-#' @param sections Character vector. Sections to fetch. Default is all available
-#'   sections: c("employments", "educations", "works", "funding", "peer-reviews").
+#' @param sections Character vector. Sections to fetch. Default is the most
+#'   commonly used sections: c("employments", "educations", "works", "funding",
+#'   "peer-reviews"). Available sections are:
+#'   \itemize{
+#'     \item Affiliations: "employments", "educations", "distinctions",
+#'       "invited-positions", "memberships", "qualifications", "services",
+#'       "research-resources"
+#'     \item Activities: "works", "funding", "peer-reviews"
+#'     \item Biographical: "person", "bio", "keywords", "researcher-urls",
+#'       "external-identifiers", "other-names", "address", "email"
+#'   }
 #'   You can specify a subset to fetch only specific sections.
 #'
-#' @return A named list with the following elements (each a data.table):
+#' @return A named list with the following possible elements (each a data.table):
 #'   \describe{
-#'     \item{employments}{Employment history (see \code{\link{orcid_employments}})}
-#'     \item{educations}{Education history (see \code{\link{orcid_educations}})}
-#'     \item{works}{Works/publications (see \code{\link{orcid_works}})}
-#'     \item{funding}{Funding records (see \code{\link{orcid_funding}})}
-#'     \item{peer_reviews}{Peer review activities (see \code{\link{orcid_peer_reviews}})}
+#'     \item{employments}{Employment history}
+#'     \item{educations}{Education history}
+#'     \item{distinctions}{Distinctions and honors}
+#'     \item{invited_positions}{Invited positions}
+#'     \item{memberships}{Professional memberships}
+#'     \item{qualifications}{Qualifications}
+#'     \item{services}{Service activities}
+#'     \item{research_resources}{Research resources}
+#'     \item{works}{Works/publications}
+#'     \item{funding}{Funding records}
+#'     \item{peer_reviews}{Peer review activities}
+#'     \item{person}{Complete person data}
+#'     \item{bio}{Biography}
+#'     \item{keywords}{Keywords}
+#'     \item{researcher_urls}{Researcher URLs}
+#'     \item{external_identifiers}{External identifiers}
+#'     \item{other_names}{Other names}
+#'     \item{address}{Address information}
+#'     \item{email}{Email addresses}
 #'   }
 #'   Empty data.tables are returned for sections with no data.
 #'
@@ -68,11 +91,28 @@ orcid_fetch_record <- function(
 
   # Validate sections
   valid_sections <- c(
+    # Affiliations
     "employments",
     "educations",
+    "distinctions",
+    "invited-positions",
+    "memberships",
+    "qualifications",
+    "services",
+    "research-resources",
+    # Works and activities
     "works",
     "funding",
-    "peer-reviews"
+    "peer-reviews",
+    # Person/biographical
+    "person",
+    "bio",
+    "keywords",
+    "researcher-urls",
+    "external-identifiers",
+    "other-names",
+    "address",
+    "email"
   )
   invalid <- setdiff(sections, valid_sections)
   if (length(invalid) > 0) {
@@ -152,6 +192,188 @@ orcid_fetch_record <- function(
     )
   }
 
+  # Professional activities
+  if ("distinctions" %in% sections) {
+    result$distinctions <- tryCatch(
+      orcid_distinctions(orcid_id, token = token),
+      error = function(e) {
+        warning(
+          "Failed to fetch distinctions: ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+        data.table::data.table()
+      }
+    )
+  }
+
+  if ("invited-positions" %in% sections) {
+    result$invited_positions <- tryCatch(
+      orcid_invited_positions(orcid_id, token = token),
+      error = function(e) {
+        warning(
+          "Failed to fetch invited positions: ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+        data.table::data.table()
+      }
+    )
+  }
+
+  if ("memberships" %in% sections) {
+    result$memberships <- tryCatch(
+      orcid_memberships(orcid_id, token = token),
+      error = function(e) {
+        warning(
+          "Failed to fetch memberships: ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+        data.table::data.table()
+      }
+    )
+  }
+
+  if ("qualifications" %in% sections) {
+    result$qualifications <- tryCatch(
+      orcid_qualifications(orcid_id, token = token),
+      error = function(e) {
+        warning(
+          "Failed to fetch qualifications: ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+        data.table::data.table()
+      }
+    )
+  }
+
+  if ("services" %in% sections) {
+    result$services <- tryCatch(
+      orcid_services(orcid_id, token = token),
+      error = function(e) {
+        warning(
+          "Failed to fetch services: ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+        data.table::data.table()
+      }
+    )
+  }
+
+  if ("research-resources" %in% sections) {
+    result$research_resources <- tryCatch(
+      orcid_research_resources(orcid_id, token = token),
+      error = function(e) {
+        warning(
+          "Failed to fetch research resources: ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+        data.table::data.table()
+      }
+    )
+  }
+
+  # Biographical data
+  if ("person" %in% sections) {
+    result$person <- tryCatch(
+      orcid_person(orcid_id, token = token),
+      error = function(e) {
+        warning("Failed to fetch person: ", conditionMessage(e), call. = FALSE)
+        data.table::data.table()
+      }
+    )
+  }
+
+  if ("bio" %in% sections) {
+    result$bio <- tryCatch(
+      orcid_bio(orcid_id, token = token),
+      error = function(e) {
+        warning("Failed to fetch bio: ", conditionMessage(e), call. = FALSE)
+        data.table::data.table()
+      }
+    )
+  }
+
+  if ("keywords" %in% sections) {
+    result$keywords <- tryCatch(
+      orcid_keywords(orcid_id, token = token),
+      error = function(e) {
+        warning(
+          "Failed to fetch keywords: ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+        data.table::data.table()
+      }
+    )
+  }
+
+  if ("researcher-urls" %in% sections) {
+    result$researcher_urls <- tryCatch(
+      orcid_researcher_urls(orcid_id, token = token),
+      error = function(e) {
+        warning(
+          "Failed to fetch researcher URLs: ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+        data.table::data.table()
+      }
+    )
+  }
+
+  if ("external-identifiers" %in% sections) {
+    result$external_identifiers <- tryCatch(
+      orcid_external_identifiers(orcid_id, token = token),
+      error = function(e) {
+        warning(
+          "Failed to fetch external identifiers: ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+        data.table::data.table()
+      }
+    )
+  }
+
+  if ("other-names" %in% sections) {
+    result$other_names <- tryCatch(
+      orcid_other_names(orcid_id, token = token),
+      error = function(e) {
+        warning(
+          "Failed to fetch other names: ",
+          conditionMessage(e),
+          call. = FALSE
+        )
+        data.table::data.table()
+      }
+    )
+  }
+
+  if ("address" %in% sections) {
+    result$address <- tryCatch(
+      orcid_address(orcid_id, token = token),
+      error = function(e) {
+        warning("Failed to fetch address: ", conditionMessage(e), call. = FALSE)
+        data.table::data.table()
+      }
+    )
+  }
+
+  if ("email" %in% sections) {
+    result$email <- tryCatch(
+      orcid_email(orcid_id, token = token),
+      error = function(e) {
+        warning("Failed to fetch email: ", conditionMessage(e), call. = FALSE)
+        data.table::data.table()
+      }
+    )
+  }
+
   result
 }
 
@@ -166,7 +388,9 @@ orcid_fetch_record <- function(
 #' @param orcid_ids Character vector. Valid ORCID identifiers in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param section Character string. Section to fetch. One of: "employments",
-#'   "educations", "works", "funding", or "peer-reviews".
+#'   "educations", "distinctions", "invited-positions", "memberships",
+#'   "qualifications", "services", "research-resources", "works", "funding",
+#'   or "peer-reviews".
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
 #' @param stop_on_error Logical. If TRUE, stops on the first error. If FALSE
@@ -217,6 +441,12 @@ orcid_fetch_many <- function(
   valid_sections <- c(
     "employments",
     "educations",
+    "distinctions",
+    "invited-positions",
+    "memberships",
+    "qualifications",
+    "services",
+    "research-resources",
     "works",
     "funding",
     "peer-reviews"
@@ -272,6 +502,12 @@ orcid_fetch_many <- function(
     section,
     "employments" = orcid_employments,
     "educations" = orcid_educations,
+    "distinctions" = orcid_distinctions,
+    "invited-positions" = orcid_invited_positions,
+    "memberships" = orcid_memberships,
+    "qualifications" = orcid_qualifications,
+    "services" = orcid_services,
+    "research-resources" = orcid_research_resources,
     "works" = orcid_works,
     "funding" = orcid_funding,
     "peer-reviews" = orcid_peer_reviews

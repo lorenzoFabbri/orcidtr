@@ -16,7 +16,9 @@ orcid_fetch_many(
 XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
 
 \item{section}{Character string. Section to fetch. One of: "employments",
-"educations", "works", "funding", or "peer-reviews".}
+"educations", "distinctions", "invited-positions", "memberships",
+"qualifications", "services", "research-resources", "works", "funding",
+or "peer-reviews".}
 
 \item{token}{Character string or NULL. Optional API token for authenticated
 requests. If NULL (default), checks the ORCID_TOKEN environment variable.}
