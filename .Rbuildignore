@@ -1,5 +1,14 @@
+^renv$
+^renv\.lock$
 ^orcidtr\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.Rmd$
 ^cran-comments\.md$
+^\.github$
+^codecov\.yml$
+^[.]?air[.]toml$
+^\.vscode$
+^Makefile$
+^docs$
+^altdoc$

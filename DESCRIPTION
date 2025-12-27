@@ -1,13 +1,30 @@
 Package: orcidtr
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Retrieve Data from the ORCID Public API
+Version: 0.0.1
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+    person("Lorenzo", "Fabbri", , "lorenzo.fabbri92sm@gmail.com", role = c("aut", "cre"))
+Description: Provides functions to retrieve public data from ORCID (Open 
+    Researcher and Contributor ID) records via the ORCID public API. 
+    Fetches employment history, education, works (publications, datasets, 
+    preprints), funding, peer review activities, and other public information.
+    Returns data as structured data.table objects for easy analysis and 
+    manipulation. Replaces the discontinued 'rorcid' package with a modern, 
+    CRAN-compliant implementation.
 License: MIT + file LICENSE
+URL: https://github.com/lorenzoFabbri/orcidtr
+BugReports: https://github.com/lorenzoFabbri/orcidtr/issues
+Depends:
+    R (>= 4.1.0)
+Imports: 
+    data.table (>= 1.14.0),
+    httr2 (>= 1.0.0),
+    jsonlite (>= 1.8.0)
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+VignetteBuilder: knitr
