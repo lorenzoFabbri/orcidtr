@@ -10,6 +10,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 [![CRAN
 status](https://www.r-pkg.org/badges/version/orcidtr)](https://CRAN.R-project.org/package=orcidtr)
 [![R-CMD-check](https://github.com/lorenzoFabbri/orcidtr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lorenzoFabbri/orcidtr/actions/workflows/R-CMD-check.yaml)
+
 <!-- badges: end -->
 
 ## Overview
