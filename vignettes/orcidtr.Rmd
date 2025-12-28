@@ -310,34 +310,47 @@ print(active_grants[, .(title, organization, start_date)])
 
 ## Authentication (Optional)
 
-Most ORCID data is publicly accessible without authentication. However, authentication provides:
+**Important:** The ORCID public API does NOT require authentication for reading public data. All functions in this package work without any token by default.
 
-- Higher API rate limits
-- Access to private data (if granted permissions)
+Authentication is entirely optional and only provides:
 
-### Setting Up Authentication
+- **Higher API rate limits** - Useful if making many requests rapidly
+- **Access to private data** - Only if you've been explicitly granted permission
+
+### When You Need Authentication
+
+Most users do not need authentication. Consider getting a token only if:
+
+- You're making very frequent requests (>24/second sustained)
+- Building an application with many concurrent users
+- Accessing private data you've been granted permission to view
+
+### Setting Up Authentication (If Needed)
 
 1. Register for ORCID API credentials at [https://orcid.org/developer-tools](https://orcid.org/developer-tools)
-2. Obtain your API token (public client credentials)
-3. Set the environment variable:
+2. Click "Register for the free ORCID public API"
+3. Follow the OAuth2 client credentials flow to obtain an access token
+4. Set the environment variable:
 
 ```{r auth-setup}
 # Set temporarily in session
 Sys.setenv(ORCID_TOKEN = "your-token-here")
 
-# Or add to .Renviron file (recommended)
+# Or add to .Renviron file (recommended for persistent use)
 # ORCID_TOKEN=your-token-here
 ```
 
 ### Using Authentication
 
 ```{r auth-usage}
-# The token is automatically detected from environment
+# The token is automatically used if ORCID_TOKEN environment variable is set
 works <- orcid_works("0000-0003-4757-117X")
 
-# Or pass explicitly
+# Or pass explicitly (overrides environment variable)
 works <- orcid_works("0000-0003-4757-117X", token = "your-token-here")
 ```
+
+**Note:** If you set an ORCID_TOKEN environment variable but find it's not working, unset it. The public API works fine without any token.
 
 ## API Status and Error Handling
 

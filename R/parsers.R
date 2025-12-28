@@ -935,8 +935,12 @@ parse_search_results <- function(json_data) {
   # Extract results array
   results <- safe_extract(json_data, "result")
 
-  # Handle empty results
-  if (is.null(results) || length(results) == 0) {
+  # Handle empty results (safe_extract returns NA for null)
+  if (
+    is.null(results) ||
+      length(results) == 0 ||
+      (length(results) == 1 && is.na(results))
+  ) {
     result <- data.table::data.table(
       orcid_id = character(0),
       given_names = character(0),

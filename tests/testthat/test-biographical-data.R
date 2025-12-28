@@ -9,14 +9,26 @@
 
 # Helper: Skip if ORCID API is not accessible
 skip_if_offline <- function() {
+  # The public API does not require authentication
   tryCatch(
     {
-      httr2::request("https://pub.orcid.org") |>
+      httr2::request("https://pub.orcid.org/v3.0/status") |>
+        httr2::req_error(is_error = function(resp) FALSE) |>
         httr2::req_perform()
       invisible(TRUE)
     },
     error = function(e) {
-      skip("ORCID API not accessible")
+      # Only skip if we can't connect at all (network error)
+      if (
+        grepl(
+          "Failed to connect|Could not resolve|timeout",
+          conditionMessage(e),
+          ignore.case = TRUE
+        )
+      ) {
+        skip("ORCID API not accessible")
+      }
+      invisible(TRUE)
     }
   )
 }

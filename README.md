@@ -1,6 +1,4 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # orcidtr
 
 <!-- badges: start -->
@@ -11,7 +9,8 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status](https://www.r-pkg.org/badges/version/orcidtr)](https://CRAN.R-project.org/package=orcidtr)
 [![R-CMD-check](https://github.com/lorenzoFabbri/orcidtr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lorenzoFabbri/orcidtr/actions/workflows/R-CMD-check.yaml)
 [![codecov](https://codecov.io/gh/lorenzoFabbri/orcidtr/branch/main/graph/badge.svg)](https://codecov.io/gh/lorenzoFabbri/orcidtr)
-[![Buy Me a Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=☕&slug=epilorenzo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/epilorenzo)
+[![Buy Me a
+Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=☕&slug=epilorenzo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/epilorenzo)
 
 <!-- badges: end -->
 
@@ -133,33 +132,74 @@ all_works[type == "journal-article" & !is.na(doi)]
 
 ## Authentication (Optional)
 
-Most public ORCiD data is accessible without authentication. However,
-you can optionally use an API token for:
+**Important:** The ORCID public API allows unauthenticated read access
+to all public data. Authentication is entirely optional and only needed
+for:
 
-- Higher rate limits
-- Access to private/restricted data (if granted permissions)
+- **Higher rate limits**: Authenticated requests have more generous rate
+  limits
+- **Private data access**: If you’ve been granted permission to access
+  restricted/private information
 
-### Setup
+### Why Authentication is Optional
 
-1.  Register for ORCiD API credentials at
+Unlike the rorcid package documentation might suggest, the ORCID
+**public API** (pub.orcid.org) does NOT require authentication for
+reading public records. The token mentioned in rorcid guides is for
+increasing rate limits, not for basic access. This package works
+perfectly fine without any token for typical use cases.
+
+### When You Might Want a Token
+
+You should consider getting a token if you:
+
+- Need to make many requests in a short time (\>24 requests/second
+  sustained)
+- Are building an application with many users
+- Need to access restricted data you’ve been granted permission to view
+
+### How to Get a Token (If Needed)
+
+1.  Register for ORCID API credentials at
     <https://orcid.org/developer-tools>
-2.  Get your API token (public client credentials)
-3.  Set the environment variable:
+2.  Click “Register for the free ORCID public API”
+3.  Fill in your application details and agree to terms
+4.  Copy your Client ID and Client Secret
+5.  Exchange them for an access token:
 
 ``` r
-# In your .Renviron file (recommended)
-ORCID_TOKEN <- your - token - here
+# Use your credentials to get a token
+library(httr2)
+resp <- request("https://orcid.org/oauth/token") |>
+  req_headers(
+    Accept = "application/json",
+    `Content-Type` = "application/x-www-form-urlencoded"
+  ) |>
+  req_body_form(
+    grant_type = "client_credentials",
+    scope = "/read-public",
+    client_id = "YOUR-CLIENT-ID",
+    client_secret = "YOUR-CLIENT-SECRET"
+  ) |>
+  req_perform()
+
+token_data <- resp_body_json(resp)
+token <- token_data$access_token
+```
+
+6.  Set the environment variable:
+
+``` r
+# In your .Renviron file (recommended for persistent use)
+ORCID_TOKEN <- "your-token-here"
 
 # Or set temporarily in R session
 Sys.setenv(ORCID_TOKEN = "your-token-here")
 ```
 
-The package will automatically detect and use the token. You can also
-pass tokens explicitly:
-
-``` r
-works <- orcidtr::orcid_works("0000-0002-1825-0097", token = "your-token")
-```
+**Note:** The package will automatically use the `ORCID_TOKEN`
+environment variable if it’s set. For the public API, this is purely
+optional and most users can skip this entire section.
 
 ## Supported Data Types
 
@@ -261,5 +301,5 @@ MIT © Lorenzo Fabbri
 ## Acknowledgments
 
 - ORCiD for providing the public API
-- The `rorcid` package authors for pioneering ORCiD integration in R
+- The `rorcid` package authors for leading ORCiD integration in R
 - The R community for feedback and contributions

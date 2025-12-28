@@ -48,8 +48,7 @@ orcid_distinctions <- function(orcid_id, token = NULL) {
     "distinctions",
     orcid_id,
     parse_affiliations,
-    token,
-    "distinction"
+    token
   )
 }
 
@@ -104,8 +103,7 @@ orcid_invited_positions <- function(orcid_id, token = NULL) {
     "invited-positions",
     orcid_id,
     parse_affiliations,
-    token,
-    "invited-position"
+    token
   )
 }
 
@@ -160,8 +158,7 @@ orcid_memberships <- function(orcid_id, token = NULL) {
     "memberships",
     orcid_id,
     parse_affiliations,
-    token,
-    "membership"
+    token
   )
 }
 
@@ -216,8 +213,7 @@ orcid_qualifications <- function(orcid_id, token = NULL) {
     "qualifications",
     orcid_id,
     parse_affiliations,
-    token,
-    "qualification"
+    token
   )
 }
 
@@ -268,7 +264,12 @@ orcid_qualifications <- function(orcid_id, token = NULL) {
 #'
 #' @export
 orcid_services <- function(orcid_id, token = NULL) {
-  fetch_and_parse("services", orcid_id, parse_affiliations, token, "service")
+  fetch_and_parse(
+    "services",
+    orcid_id,
+    parse_affiliations,
+    token
+  )
 }
 
 
