@@ -5,7 +5,7 @@ on:
     branches: [main, master]
   pull_request:
   release:
-    types: [published]
+    types: [published, prereleased]
   workflow_dispatch:
 
 name: pkgdown.yaml
