@@ -61,6 +61,13 @@ test_that("orcid_distinctions validates ORCID format", {
 # API Function Tests: orcid_invited_positions()
 # ==============================================================================
 
+test_that("orcid_invited_positions validates ORCID format", {
+  expect_error(
+    orcid_invited_positions("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
+
 test_that("orcid_invited_positions fetches real data", {
   skip_on_cran()
   skip_if_offline()
@@ -78,6 +85,13 @@ test_that("orcid_invited_positions fetches real data", {
 # ==============================================================================
 # API Function Tests: orcid_memberships()
 # ==============================================================================
+
+test_that("orcid_memberships validates ORCID format", {
+  expect_error(
+    orcid_memberships("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
 
 test_that("orcid_memberships fetches real data", {
   skip_on_cran()
@@ -97,6 +111,13 @@ test_that("orcid_memberships fetches real data", {
 # API Function Tests: orcid_qualifications()
 # ==============================================================================
 
+test_that("orcid_qualifications validates ORCID format", {
+  expect_error(
+    orcid_qualifications("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
+
 test_that("orcid_qualifications fetches real data", {
   skip_on_cran()
   skip_if_offline()
@@ -115,6 +136,13 @@ test_that("orcid_qualifications fetches real data", {
 # API Function Tests: orcid_services()
 # ==============================================================================
 
+test_that("orcid_services validates ORCID format", {
+  expect_error(
+    orcid_services("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
+
 test_that("orcid_services fetches real data", {
   skip_on_cran()
   skip_if_offline()
@@ -132,6 +160,13 @@ test_that("orcid_services fetches real data", {
 # ==============================================================================
 # API Function Tests: orcid_research_resources()
 # ==============================================================================
+
+test_that("orcid_research_resources validates ORCID format", {
+  expect_error(
+    orcid_research_resources("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
 
 test_that("orcid_research_resources fetches real data", {
   skip_on_cran()

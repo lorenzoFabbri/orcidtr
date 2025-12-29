@@ -37,6 +37,23 @@ skip_if_offline <- function() {
 # API Function Tests: orcid_employments()
 # ==============================================================================
 
+test_that("orcid_employments validates ORCID format", {
+  expect_error(
+    orcid_employments("invalid-orcid"),
+    "Invalid ORCID"
+  )
+
+  expect_error(
+    orcid_employments(""),
+    "Invalid ORCID"
+  )
+
+  expect_error(
+    orcid_employments(NULL),
+    "ORCID"
+  )
+})
+
 test_that("orcid_employments fetches real data", {
   skip_on_cran()
   skip_if_offline()
@@ -48,16 +65,16 @@ test_that("orcid_employments fetches real data", {
   expect_true("organization" %in% names(result))
 })
 
-test_that("orcid_employments validates ORCID format", {
-  expect_error(
-    orcid_employments("invalid-orcid"),
-    "Invalid ORCID"
-  )
-})
-
 # ==============================================================================
 # API Function Tests: orcid_educations()
 # ==============================================================================
+
+test_that("orcid_educations validates ORCID format", {
+  expect_error(
+    orcid_educations("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
 
 test_that("orcid_educations fetches real data", {
   skip_on_cran()
@@ -72,6 +89,13 @@ test_that("orcid_educations fetches real data", {
 # ==============================================================================
 # API Function Tests: orcid_works()
 # ==============================================================================
+
+test_that("orcid_works validates ORCID format", {
+  expect_error(
+    orcid_works("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
 
 test_that("orcid_works fetches real data", {
   skip_on_cran()
@@ -88,6 +112,13 @@ test_that("orcid_works fetches real data", {
 # API Function Tests: orcid_funding()
 # ==============================================================================
 
+test_that("orcid_funding validates ORCID format", {
+  expect_error(
+    orcid_funding("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
+
 test_that("orcid_funding fetches real data", {
   skip_on_cran()
   skip_if_offline()
@@ -101,6 +132,13 @@ test_that("orcid_funding fetches real data", {
 # ==============================================================================
 # API Function Tests: orcid_peer_reviews()
 # ==============================================================================
+
+test_that("orcid_peer_reviews validates ORCID format", {
+  expect_error(
+    orcid_peer_reviews("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
 
 test_that("orcid_peer_reviews fetches real data", {
   skip_on_cran()

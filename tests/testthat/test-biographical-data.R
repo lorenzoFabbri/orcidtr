@@ -60,6 +60,13 @@ test_that("orcid_person validates ORCID format", {
 # API Function Tests: orcid_bio()
 # ==============================================================================
 
+test_that("orcid_bio validates ORCID format", {
+  expect_error(
+    orcid_bio("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
+
 test_that("orcid_bio fetches real data", {
   skip_on_cran()
   skip_if_offline()
@@ -74,6 +81,13 @@ test_that("orcid_bio fetches real data", {
 # ==============================================================================
 # API Function Tests: orcid_keywords()
 # ==============================================================================
+
+test_that("orcid_keywords validates ORCID format", {
+  expect_error(
+    orcid_keywords("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
 
 test_that("orcid_keywords fetches real data", {
   skip_on_cran()
@@ -93,6 +107,13 @@ test_that("orcid_keywords fetches real data", {
 # API Function Tests: orcid_researcher_urls()
 # ==============================================================================
 
+test_that("orcid_researcher_urls validates ORCID format", {
+  expect_error(
+    orcid_researcher_urls("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
+
 test_that("orcid_researcher_urls fetches real data", {
   skip_on_cran()
   skip_if_offline()
@@ -110,6 +131,13 @@ test_that("orcid_researcher_urls fetches real data", {
 # ==============================================================================
 # API Function Tests: orcid_external_identifiers()
 # ==============================================================================
+
+test_that("orcid_external_identifiers validates ORCID format", {
+  expect_error(
+    orcid_external_identifiers("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
 
 test_that("orcid_external_identifiers fetches real data", {
   skip_on_cran()
@@ -129,6 +157,13 @@ test_that("orcid_external_identifiers fetches real data", {
 # API Function Tests: orcid_other_names()
 # ==============================================================================
 
+test_that("orcid_other_names validates ORCID format", {
+  expect_error(
+    orcid_other_names("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
+
 test_that("orcid_other_names fetches real data", {
   skip_on_cran()
   skip_if_offline()
@@ -147,6 +182,13 @@ test_that("orcid_other_names fetches real data", {
 # API Function Tests: orcid_address()
 # ==============================================================================
 
+test_that("orcid_address validates ORCID format", {
+  expect_error(
+    orcid_address("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
+
 test_that("orcid_address fetches real data", {
   skip_on_cran()
   skip_if_offline()
@@ -164,6 +206,13 @@ test_that("orcid_address fetches real data", {
 # ==============================================================================
 # API Function Tests: orcid_email()
 # ==============================================================================
+
+test_that("orcid_email validates ORCID format", {
+  expect_error(
+    orcid_email("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
 
 test_that("orcid_email fetches data", {
   skip_on_cran()

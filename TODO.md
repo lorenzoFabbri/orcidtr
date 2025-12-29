@@ -1,2 +1,1 @@
-- [ ] Check out how rhub v2 works
 - [ ] Local caching for repeated queries

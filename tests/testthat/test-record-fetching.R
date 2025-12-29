@@ -116,6 +116,60 @@ test_that("orcid_fetch_record can fetch specific sections", {
   expect_false("funding" %in% names(result))
 })
 
+test_that("orcid_fetch_record validates ORCID format", {
+  expect_error(
+    orcid_fetch_record("invalid-orcid"),
+    "Invalid ORCID"
+  )
+})
+
+test_that("orcid_fetch_record validates sections parameter", {
+  expect_error(
+    orcid_fetch_record("0000-0002-1825-0097", sections = c("invalid-section")),
+    "Invalid section"
+  )
+})
+
+test_that("orcid_fetch_record fetches biographical sections", {
+  skip_on_cran()
+  skip_if_offline()
+
+  result <- orcid_fetch_record(
+    "0000-0002-1825-0097",
+    sections = c("bio", "keywords")
+  )
+
+  expect_type(result, "list")
+  expect_true("bio" %in% names(result))
+  expect_true("keywords" %in% names(result))
+})
+
+test_that("orcid_fetch_record fetches affiliation sections", {
+  skip_on_cran()
+  skip_if_offline()
+
+  result <- orcid_fetch_record(
+    "0000-0002-1825-0097",
+    sections = c("distinctions", "invited-positions", "memberships")
+  )
+
+  expect_type(result, "list")
+  expect_true("distinctions" %in% names(result))
+  expect_true("invited_positions" %in% names(result))
+  expect_true("memberships" %in% names(result))
+})
+
+test_that("orcid_fetch_record handles errors gracefully", {
+  skip_on_cran()
+  skip_if_offline()
+
+  # Should return empty data.table for failed sections
+  result <- orcid_fetch_record("0000-0000-0000-0000")
+
+  # The function should have tried to fetch sections
+  expect_type(result, "list")
+})
+
 # ==============================================================================
 # API Function Tests: orcid_fetch_many()
 # ==============================================================================
