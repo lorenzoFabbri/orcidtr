@@ -11,7 +11,7 @@
 
 ## Package submission notes
 
-This is the initial CRAN submission of `orcidtr`, a modern replacement for the discontinued `rorcid` package.
+This is the initial CRAN submission of `orcidtr` version 0.1.0, a modern replacement for the discontinued `rorcid` package.
 
 ### Purpose
 

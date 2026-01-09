@@ -1,4 +1,4 @@
-# orcidtr 0.0.1 (development version)
+# orcidtr 0.1.0
 
 ## Breaking Changes (December 28, 2025)
 

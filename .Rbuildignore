@@ -18,3 +18,5 @@
 ^DEVELOPMENT\.md$
 ^lib$
 ^TODO\.md$
+^\.lintr$
+^CRAN-SUBMISSION$

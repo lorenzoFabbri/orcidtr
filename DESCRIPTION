@@ -1,6 +1,6 @@
 Package: orcidtr
 Title: Retrieve Data from the ORCID Public API
-Version: 0.0.1
+Version: 0.1.0
 Authors@R: 
     person("Lorenzo", "Fabbri", , "lorenzo.fabbri92sm@gmail.com", role = c("aut", "cre"))
 Description: Provides functions to retrieve public data from ORCID (Open 
