@@ -37,7 +37,10 @@ provides direct access to the ORCID search API with full query capabilities.
 }
 \details{
 This function queries the ORCID search endpoint:
-\code{https://pub.orcid.org/v3.0/search}
+\code{https://pub.orcid.org/v3.0/expanded-search}
+
+The expanded-search endpoint returns name information along with ORCID IDs,
+unlike the basic search endpoint which only returns identifiers.
 
 \strong{Query Field Examples:}
 \itemize{
@@ -76,7 +79,7 @@ page2 <- orcid("keyword:genomics", rows = 10, start = 10)
 
 }
 \references{
-ORCID API Search Documentation: \url{https://info.orcid.org/documentation/integration-guide/searching-the-orcid-registry/}
+ORCID API Search Documentation: \url{https://info.orcid.org/documentation/api-tutorials/api-tutorial-searching-the-orcid-registry/}
 }
 \seealso{
 \code{\link{orcid_search}} for a more user-friendly interface,

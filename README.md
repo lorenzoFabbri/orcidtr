@@ -5,12 +5,14 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![CRAN
-status](https://www.r-pkg.org/badges/version/orcidtr)](https://CRAN.R-project.org/package=orcidtr)
+
+<!-- [![CRAN
+status](https://www.r-pkg.org/badges/version/orcidtr)](https://CRAN.R-project.org/package=orcidtr) -->
+
 [![R-CMD-check](https://github.com/lorenzoFabbri/orcidtr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lorenzoFabbri/orcidtr/actions/workflows/R-CMD-check.yaml)
-[![codecov](https://codecov.io/gh/lorenzoFabbri/orcidtr/branch/main/graph/badge.svg)](https://codecov.io/gh/lorenzoFabbri/orcidtr)
+[![codecov](https://codecov.io/gh/lorenzoFabbri/orcidtr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/lorenzoFabbri/orcidtr)
 [![Buy Me a
-Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=☕&slug=epilorenzo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/epilorenzo)
+Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=☕&slug=epilorenzo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff)](https://buymeacoffee.com/epilorenzo)
 
 <!-- badges: end -->
 

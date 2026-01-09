@@ -8,5 +8,6 @@
 
 library(testthat)
 library(orcidtr)
+library(withr)
 
 test_check("orcidtr")

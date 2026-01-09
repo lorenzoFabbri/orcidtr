@@ -133,54 +133,55 @@ parse_works <- function(json_data, orcid_id) {
 
   records <- lapply(groups, function(group) {
     summaries <- safe_extract(group, "work-summary")
-    if (is.null(summaries)) {
+    if (is.null(summaries) || length(summaries) == 0) {
       return(NULL)
     }
 
-    lapply(summaries, function(summary) {
-      if (is.null(summary)) {
-        return(NULL)
-      }
+    # Only take the first work-summary to avoid duplicates
+    # Multiple work-summaries in a group represent the same work from different sources
+    summary <- summaries[[1]]
 
-      # Extract title
-      title <- safe_extract(summary, "title", "title", "value")
+    if (is.null(summary)) {
+      return(NULL)
+    }
 
-      # Extract DOI from external IDs
-      doi <- NA_character_
-      ext_ids <- safe_extract(summary, "external-ids", "external-id")
-      if (!is.null(ext_ids) && is.list(ext_ids)) {
-        for (ext_id in ext_ids) {
-          if (
-            !is.null(ext_id) &&
-              identical(safe_extract(ext_id, "external-id-type"), "doi")
-          ) {
-            doi <- safe_extract(ext_id, "external-id-value")
-            break
-          }
+    # Extract title
+    title <- safe_extract(summary, "title", "title", "value")
+
+    # Extract DOI from external IDs
+    doi <- NA_character_
+    ext_ids <- safe_extract(summary, "external-ids", "external-id")
+    if (!is.null(ext_ids) && is.list(ext_ids)) {
+      for (ext_id in ext_ids) {
+        if (
+          !is.null(ext_id) &&
+            identical(safe_extract(ext_id, "external-id-type"), "doi")
+        ) {
+          doi <- safe_extract(ext_id, "external-id-value")
+          break
         }
       }
+    }
 
-      # Extract URL
-      url <- safe_extract(summary, "url", "value")
+    # Extract URL
+    url <- safe_extract(summary, "url", "value")
 
-      list(
-        orcid = orcid_id,
-        put_code = as.character(safe_extract(summary, "put-code")),
-        title = title,
-        type = safe_extract(summary, "type"),
-        publication_date = orcid_date_to_iso(safe_extract(
-          summary,
-          "publication-date"
-        )),
-        journal = safe_extract(summary, "journal-title", "value"),
-        doi = doi,
-        url = url
-      )
-    })
+    list(
+      orcid = orcid_id,
+      put_code = as.character(safe_extract(summary, "put-code")),
+      title = title,
+      type = safe_extract(summary, "type"),
+      publication_date = orcid_date_to_iso(safe_extract(
+        summary,
+        "publication-date"
+      )),
+      journal = safe_extract(summary, "journal-title", "value"),
+      doi = doi,
+      url = url
+    )
   })
 
-  records_flat <- unlist(records, recursive = FALSE)
-  records_flat <- records_flat[!vapply(records_flat, is.null, logical(1))]
+  records_flat <- records[!vapply(records, is.null, logical(1))]
 
   if (length(records_flat) == 0) {
     return(data.table::data.table(
@@ -364,7 +365,12 @@ parse_peer_reviews <- function(json_data, orcid_id) {
 parse_affiliations <- function(json_data, orcid_id) {
   groups <- safe_extract(json_data, "affiliation-group")
 
-  if (is.null(groups) || length(groups) == 0) {
+  # Check if groups is NA (not just NULL)
+  if (
+    is.null(groups) ||
+      length(groups) == 0 ||
+      (length(groups) == 1 && is.na(groups))
+  ) {
     return(data.table::data.table(
       orcid = character(0),
       put_code = character(0),
@@ -381,26 +387,26 @@ parse_affiliations <- function(json_data, orcid_id) {
 
   records <- lapply(groups, function(group) {
     summaries <- safe_extract(group, "summaries")
-    if (is.null(summaries)) {
+    if (is.null(summaries) || (length(summaries) == 1 && is.na(summaries))) {
       return(NULL)
     }
 
     lapply(summaries, function(item) {
       # Try different summary types
       summary <- safe_extract(item, "distinction-summary")
-      if (is.null(summary)) {
+      if (is.null(summary) || (length(summary) == 1 && is.na(summary))) {
         summary <- safe_extract(item, "invited-position-summary")
       }
-      if (is.null(summary)) {
+      if (is.null(summary) || (length(summary) == 1 && is.na(summary))) {
         summary <- safe_extract(item, "membership-summary")
       }
-      if (is.null(summary)) {
+      if (is.null(summary) || (length(summary) == 1 && is.na(summary))) {
         summary <- safe_extract(item, "qualification-summary")
       }
-      if (is.null(summary)) {
+      if (is.null(summary) || (length(summary) == 1 && is.na(summary))) {
         summary <- safe_extract(item, "service-summary")
       }
-      if (is.null(summary)) {
+      if (is.null(summary) || (length(summary) == 1 && is.na(summary))) {
         return(NULL)
       }
 
@@ -932,8 +938,13 @@ parse_search_results <- function(json_data) {
     num_found <- 0L
   }
 
-  # Extract results array
-  results <- safe_extract(json_data, "result")
+  # Extract results array - use expanded-result for v3.0 API
+  results <- safe_extract(json_data, "expanded-result")
+
+  # Fall back to "result" if expanded-result doesn't exist (older API versions)
+  if (is.null(results) || (length(results) == 1 && is.na(results))) {
+    results <- safe_extract(json_data, "result")
+  }
 
   # Handle empty results (safe_extract returns NA for null)
   if (
@@ -954,36 +965,55 @@ parse_search_results <- function(json_data) {
 
   # Parse each result
   parsed <- lapply(results, function(item) {
-    # Extract ORCID identifier
+    # Extract ORCID identifier - handle both formats
     orcid_path <- safe_extract(item, "orcid-identifier", "path")
-    orcid_id <- if (!is.null(orcid_path)) orcid_path else NA_character_
-
-    # Extract given names
-    given_names <- safe_extract(item, "given-names")
-    if (is.null(given_names)) {
-      given_names <- NA_character_
+    if (is.null(orcid_path) || is.na(orcid_path)) {
+      # Try direct orcid-id field (expanded-search format)
+      orcid_path <- item[["orcid-id"]]
     }
-
-    # Extract family name
-    family_name <- safe_extract(item, "family-names")
-    if (is.null(family_name)) {
-      family_name <- NA_character_
-    }
-
-    # Extract credit name
-    credit_names <- safe_extract(item, "credit-name")
-    credit_name <- if (!is.null(credit_names) && length(credit_names) > 0) {
-      credit_names[[1]]
+    orcid_id <- if (!is.null(orcid_path) && !is.na(orcid_path)) {
+      orcid_path
     } else {
       NA_character_
     }
 
+    # Helper function to safely extract and convert to character
+    extract_name_field <- function(field_name) {
+      val <- item[[field_name]]
+      if (is.null(val)) {
+        return(NA_character_)
+      }
+      if (length(val) == 0) {
+        return(NA_character_)
+      }
+      if (is.list(val)) {
+        # If it's a list, try to get the first non-null element
+        for (i in seq_along(val)) {
+          if (!is.null(val[[i]]) && length(val[[i]]) > 0) {
+            return(as.character(val[[i]]))
+          }
+        }
+        return(NA_character_)
+      }
+      # Direct value
+      return(as.character(val))
+    }
+
+    # Extract name fields
+    given_names <- extract_name_field("given-names")
+    family_name <- extract_name_field("family-names")
+    credit_name <- extract_name_field("credit-name")
+
     # Extract other names
-    other_names_data <- safe_extract(item, "other-names")
+    other_names_val <- item[["other-names"]]
+    if (is.null(other_names_val)) {
+      # Try alternate field name
+      other_names_val <- item[["other-name"]]
+    }
     other_names <- if (
-      !is.null(other_names_data) && length(other_names_data) > 0
+      !is.null(other_names_val) && length(other_names_val) > 0
     ) {
-      other_names_data
+      if (is.list(other_names_val)) other_names_val else list(other_names_val)
     } else {
       list(character(0))
     }

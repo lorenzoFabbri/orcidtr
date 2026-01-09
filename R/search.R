@@ -25,7 +25,10 @@
 #'
 #' @details
 #' This function queries the ORCID search endpoint:
-#' \code{https://pub.orcid.org/v3.0/search}
+#' \code{https://pub.orcid.org/v3.0/expanded-search}
+#'
+#' The expanded-search endpoint returns name information along with ORCID IDs,
+#' unlike the basic search endpoint which only returns identifiers.
 #'
 #' **Query Field Examples:**
 #' \itemize{
@@ -42,7 +45,7 @@
 #' \code{"family-name:Smith AND affiliation-org-name:Harvard"}
 #'
 #' @references
-#' ORCID API Search Documentation: \url{https://info.orcid.org/documentation/integration-guide/searching-the-orcid-registry/}
+#' ORCID API Search Documentation: \url{https://info.orcid.org/documentation/api-tutorials/api-tutorial-searching-the-orcid-registry/}
 #'
 #' @seealso
 #' \code{\link{orcid_search}} for a more user-friendly interface,
@@ -102,7 +105,7 @@ orcid <- function(query = NULL, rows = 10, start = 0, token = NULL, ...) {
   }
 
   # Construct URL
-  url <- paste0(orcid_base_url(), "/search")
+  url <- paste0(orcid_base_url(), "/expanded-search")
 
   # Build request
   req <- httr2::request(url) |>
@@ -200,7 +203,7 @@ orcid <- function(query = NULL, rows = 10, start = 0, token = NULL, ...) {
 #' @details
 #' This function constructs a Solr query from the provided parameters and
 #' calls \code{\link{orcid}} internally. Multiple parameters are combined
-#' with AND logic.
+#' with AND logic. Uses the expanded-search endpoint to return name information.
 #'
 #' @examples
 #' \dontrun{

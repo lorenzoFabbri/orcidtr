@@ -55,7 +55,7 @@ syntax. This function provides a more intuitive interface than \code{\link{orcid
 \details{
 This function constructs a Solr query from the provided parameters and
 calls \code{\link{orcid}} internally. Multiple parameters are combined
-with AND logic.
+with AND logic. Uses the expanded-search endpoint to return name information.
 }
 \examples{
 \dontrun{

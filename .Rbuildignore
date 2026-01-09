@@ -14,3 +14,7 @@
 ^altdoc$
 ^doc$
 ^Meta$
+^coverage\.html$
+^DEVELOPMENT\.md$
+^lib$
+^TODO\.md$

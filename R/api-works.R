@@ -16,7 +16,10 @@
 #'     \item{orcid}{ORCID identifier}
 #'     \item{put_code}{Unique identifier for this work record}
 #'     \item{title}{Title of the work}
-#'     \item{type}{Type of work (e.g., journal-article, dataset, preprint)}
+#'     \item{type}{Type of work. Common values include: "journal-article",
+#'       "conference-paper", "conference-poster", "book", "book-chapter",
+#'       "dissertation", "data-set", "preprint", "report", "working-paper",
+#'       "other". Use this field to distinguish between different publication types.}
 #'     \item{publication_date}{Publication date (ISO format)}
 #'     \item{journal}{Journal or venue name (if available)}
 #'     \item{doi}{Digital Object Identifier (if available)}
@@ -47,9 +50,11 @@
 #' works <- orcid_works("0000-0002-1825-0097")
 #' print(works)
 #'
-#' # Filter by type
-#' articles <- works[type == "journal-article"]
+#' # Filter by type to distinguish between different publication types
+#' journal_articles <- works[type == "journal-article"]
+#' conference_posters <- works[type == "conference-poster"]
 #' datasets <- works[type == "data-set"]
+#' preprints <- works[type == "preprint"]
 #'
 #' # With authentication
 #' Sys.setenv(ORCID_TOKEN = "your-token-here")
