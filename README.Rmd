@@ -270,19 +270,6 @@ str(works)
 - Cache results when possible
 - Handle errors gracefully with `tryCatch()`
 
-## Contributing
-
-Contributions are welcome! Please see the [DEVELOPMENT.md](DEVELOPMENT.md) file for:
-
-- Development workflow
-- Package building and testing
-- Documentation guidelines
-- Contribution standards
-
-## Code of Conduct
-
-Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
-
 ## License
 
 MIT © Lorenzo Fabbri
