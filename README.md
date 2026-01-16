@@ -4,10 +4,10 @@
 <!-- badges: start -->
 
 [![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+active](https://img.shields.io/badge/lifecycle-active-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#active)
 
-<!-- [![CRAN
-status](https://www.r-pkg.org/badges/version/orcidtr)](https://CRAN.R-project.org/package=orcidtr) -->
+[![CRAN
+status](https://www.r-pkg.org/badges/version/orcidtr)](https://CRAN.R-project.org/package=orcidtr)
 
 [![R-CMD-check](https://github.com/lorenzoFabbri/orcidtr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lorenzoFabbri/orcidtr/actions/workflows/R-CMD-check.yaml)
 [![codecov](https://codecov.io/gh/lorenzoFabbri/orcidtr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/lorenzoFabbri/orcidtr)
@@ -39,7 +39,7 @@ education, publications, funding, peer review activities, and more.
 
 ## Installation
 
-Install from CRAN (when available):
+Install from CRAN:
 
 ``` r
 install.packages("orcidtr")

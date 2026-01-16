@@ -1,1 +1,3 @@
 - [ ] Local caching for repeated queries
+- [ ] Write package names, software names, and API names in single quotes in title and sescription
+- [ ] Add reference for the API in the form <https:> to the description of the DESCRIPTION file (with angle brackets)
