@@ -8,7 +8,8 @@ orcid_educations(orcid_id, token = NULL)
 }
 \arguments{
 \item{orcid_id}{Character string. A valid ORCID identifier in the format
-XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
+XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
 
 \item{token}{Character string or NULL. Optional API token for authenticated
 requests. If NULL (default), no token is sent.
@@ -55,8 +56,10 @@ edu <- orcid_educations("0000-0002-1825-0097", token = "your-token-here")
 
 }
 \references{
-ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+ORCID API Documentation:
+\url{https://info.orcid.org/documentation/api-tutorials/}
 }
 \seealso{
-\code{\link{orcid_employments}}, \code{\link{orcid_works}}, \code{\link{orcid_fetch_record}}
+\code{\link{orcid_employments}}, \code{\link{orcid_works}},
+\code{\link{orcid_fetch_record}}
 }

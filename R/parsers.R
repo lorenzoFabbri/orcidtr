@@ -1,12 +1,14 @@
 #' Generic parser for affiliation-group structures
 #'
 #' @description
-#' Shared logic for parsing affiliation-based records (employments, educations, affiliations).
+#' Shared logic for parsing affiliation-based records (employments, educations,
+#' affiliations).
 #' Reduces code duplication across multiple parsers.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
-#' @param summary_key Character string. The summary key to extract (e.g., "employment-summary").
+#' @param summary_key Character string. The summary key to extract (e.g.,
+#'   "employment-summary").
 #'
 #' @return data.table with affiliation records.
 #' @keywords internal
@@ -138,7 +140,8 @@ parse_works <- function(json_data, orcid_id) {
     }
 
     # Only take the first work-summary to avoid duplicates
-    # Multiple work-summaries in a group represent the same work from different sources
+    # Multiple work-summaries in a group represent the same work from different
+    # sources
     summary <- summaries[[1]]
 
     if (is.null(summary)) {
@@ -354,7 +357,8 @@ parse_peer_reviews <- function(json_data, orcid_id) {
 #'
 #' @description
 #' Converts affiliation JSON response to normalized data.table.
-#' Used for distinctions, invited-positions, memberships, qualifications, services.
+#' Used for distinctions, invited-positions, memberships, qualifications,
+#' services.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
@@ -674,7 +678,8 @@ parse_researcher_urls <- function(json_data, orcid_id) {
 #' Parse external identifiers from ORCID API
 #'
 #' @description
-#' Converts external-identifiers endpoint JSON response to normalized data.table.
+#' Converts external-identifiers endpoint JSON response to normalized
+#' data.table.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
@@ -996,7 +1001,7 @@ parse_search_results <- function(json_data) {
         return(NA_character_)
       }
       # Direct value
-      return(as.character(val))
+      as.character(val)
     }
 
     # Extract name fields

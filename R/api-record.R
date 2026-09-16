@@ -6,7 +6,8 @@
 #' data.table objects.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'   Most public data is accessible without authentication.
@@ -23,7 +24,8 @@
 #'   }
 #'   You can specify a subset to fetch only specific sections.
 #'
-#' @return A named list with the following possible elements (each a data.table):
+#' @return A named list with the following possible elements (each a
+#'   data.table):
 #'   \describe{
 #'     \item{employments}{Employment history}
 #'     \item{educations}{Education history}
@@ -55,10 +57,12 @@
 #' \code{sections} parameter.
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
-#' \code{\link{orcid_fetch_many}}, \code{\link{orcid_employments}}, \code{\link{orcid_works}}
+#' \code{\link{orcid_fetch_many}}, \code{\link{orcid_employments}},
+#' \code{\link{orcid_works}}
 #'
 #' @examples
 #' \dontrun{
@@ -75,7 +79,8 @@
 #' )
 #'
 #' # With an explicit token
-#' record <- orcid_fetch_record("0000-0002-1825-0097", token = "your-token-here")
+#' record <- orcid_fetch_record("0000-0002-1825-0097", token =
+#' "your-token-here")
 #' }
 #'
 #' @export
@@ -103,7 +108,7 @@ orcid_fetch_record <- function(
     "works",
     "funding",
     "peer-reviews",
-    # Person/biographical
+    # Person and biographical
     "person",
     "bio",
     "keywords",
@@ -385,7 +390,8 @@ orcid_fetch_record <- function(
 #' for each. Results are combined into a single data.table.
 #'
 #' @param orcid_ids Character vector. Valid ORCID identifiers in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param section Character string. Section to fetch. One of: "employments",
 #'   "educations", "distinctions", "invited-positions", "memberships",
 #'   "qualifications", "services", "research-resources", "works", "funding",
@@ -393,7 +399,8 @@ orcid_fetch_record <- function(
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #' @param stop_on_error Logical. If TRUE, stops on the first error. If FALSE
-#'   (default), continues processing and returns results for successful requests,
+#'   (default), continues processing and returns results for successful
+#'   requests,
 #'   issuing warnings for failures.
 #'
 #' @return A data.table combining results from all successful requests. The
@@ -410,10 +417,12 @@ orcid_fetch_record <- function(
 #' or using authenticated requests which typically have higher rate limits.
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
-#' \code{\link{orcid_fetch_record}}, \code{\link{orcid_works}}, \code{\link{orcid_employments}}
+#' \code{\link{orcid_fetch_record}}, \code{\link{orcid_works}},
+#' \code{\link{orcid_employments}}
 #'
 #' @examples
 #' \dontrun{

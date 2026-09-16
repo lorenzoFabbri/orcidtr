@@ -213,8 +213,8 @@ orcid_ping <- function() {
   # Extract tomcatUp status
   tomcat_up <- safe_extract(json_data, "tomcatUp")
   if (isTRUE(tomcat_up)) {
-    return("OK")
+    "OK"
   } else {
-    return(paste("Status:", tomcat_up))
+    paste("Status:", tomcat_up)
   }
 }

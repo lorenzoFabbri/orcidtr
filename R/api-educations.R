@@ -6,7 +6,8 @@
 #' institutions, degrees, departments, and dates.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'   Most public data is accessible without authentication.
@@ -35,10 +36,12 @@
 #' User-Agent headers identifying the orcidtr package.
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
-#' \code{\link{orcid_employments}}, \code{\link{orcid_works}}, \code{\link{orcid_fetch_record}}
+#' \code{\link{orcid_employments}}, \code{\link{orcid_works}},
+#' \code{\link{orcid_fetch_record}}
 #'
 #' @examples
 #' \dontrun{

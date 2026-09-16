@@ -12,7 +12,8 @@ orcid_fetch_record(
 }
 \arguments{
 \item{orcid_id}{Character string. A valid ORCID identifier in the format
-XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
+XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
 
 \item{token}{Character string or NULL. Optional API token for authenticated
 requests. If NULL (default), no token is sent.
@@ -32,7 +33,8 @@ commonly used sections: c("employments", "educations", "works", "funding",
 You can specify a subset to fetch only specific sections.}
 }
 \value{
-A named list with the following possible elements (each a data.table):
+A named list with the following possible elements (each a
+data.table):
 \describe{
 \item{employments}{Employment history}
 \item{educations}{Education history}
@@ -83,13 +85,16 @@ record <- orcid_fetch_record(
 )
 
 # With an explicit token
-record <- orcid_fetch_record("0000-0002-1825-0097", token = "your-token-here")
+record <- orcid_fetch_record("0000-0002-1825-0097", token =
+"your-token-here")
 }
 
 }
 \references{
-ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+ORCID API Documentation:
+\url{https://info.orcid.org/documentation/api-tutorials/}
 }
 \seealso{
-\code{\link{orcid_fetch_many}}, \code{\link{orcid_employments}}, \code{\link{orcid_works}}
+\code{\link{orcid_fetch_many}}, \code{\link{orcid_employments}},
+\code{\link{orcid_works}}
 }

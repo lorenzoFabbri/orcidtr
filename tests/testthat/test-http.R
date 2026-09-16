@@ -1,10 +1,7 @@
 # ==============================================================================
 # Test Suite: HTTP Request Handling
 # ==============================================================================
-# Tests for http.R functions:
-# - orcid_request()
-# - orcid_base_url()
-# - orcid_ping()
+# Tests for the http.R functions orcid_request, orcid_base_url and orcid_ping.
 
 # Helper: Skip if ORCID API is not accessible
 skip_if_offline <- function() {
@@ -23,7 +20,7 @@ skip_if_offline <- function() {
           ignore.case = TRUE
         )
       ) {
-        skip("ORCID API not accessible")
+        testthat::skip("ORCID API not accessible")
       }
       invisible(TRUE)
     }

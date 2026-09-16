@@ -13,7 +13,8 @@ orcid_fetch_many(
 }
 \arguments{
 \item{orcid_ids}{Character vector. Valid ORCID identifiers in the format
-XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
+XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
 
 \item{section}{Character string. Section to fetch. One of: "employments",
 "educations", "distinctions", "invited-positions", "memberships",
@@ -24,7 +25,8 @@ or "peer-reviews".}
 requests. If NULL (default), no token is sent.}
 
 \item{stop_on_error}{Logical. If TRUE, stops on the first error. If FALSE
-(default), continues processing and returns results for successful requests,
+(default), continues processing and returns results for successful
+requests,
 issuing warnings for failures.}
 }
 \value{
@@ -62,8 +64,10 @@ works <- orcid_fetch_many(orcids, section = "works", stop_on_error = TRUE)
 
 }
 \references{
-ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+ORCID API Documentation:
+\url{https://info.orcid.org/documentation/api-tutorials/}
 }
 \seealso{
-\code{\link{orcid_fetch_record}}, \code{\link{orcid_works}}, \code{\link{orcid_employments}}
+\code{\link{orcid_fetch_record}}, \code{\link{orcid_works}},
+\code{\link{orcid_employments}}
 }

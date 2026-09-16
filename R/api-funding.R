@@ -1,12 +1,14 @@
 #' Retrieve funding records from ORCID
 #'
 #' @description
-#' Fetches funding records for a given ORCID identifier from the ORCID public API.
+#' Fetches funding records for a given ORCID identifier from the ORCID public
+#' API.
 #' Returns a structured data.table with funding details including grant titles,
 #' funding organizations, amounts, and dates.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'   Most public data is accessible without authentication.
@@ -34,10 +36,12 @@
 #' User-Agent headers identifying the orcidtr package.
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
-#' \code{\link{orcid_works}}, \code{\link{orcid_employments}}, \code{\link{orcid_fetch_record}}
+#' \code{\link{orcid_works}}, \code{\link{orcid_employments}},
+#' \code{\link{orcid_fetch_record}}
 #'
 #' @examples
 #' \dontrun{

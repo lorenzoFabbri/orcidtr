@@ -1,2 +1,8 @@
 linters: linters_with_defaults() # see vignette("lintr")
 encoding: "UTF-8"
+exclusions: list(
+    # A reference URL cannot be broken across lines.
+    "R/search.R" = list(line_length_linter = 48),
+    # Installation instructions show a deliberately commented-out command.
+    "vignettes/orcidtr.Rmd" = list(commented_code_linter = 36)
+  )

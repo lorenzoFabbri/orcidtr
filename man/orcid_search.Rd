@@ -26,7 +26,8 @@ orcid_search(
 
 \item{affiliation_org}{Character string. Organization name.}
 
-\item{email}{Character string. Email address (supports wildcards like *@example.org).}
+\item{email}{Character string. Email address (supports wildcards like
+*@example.org).}
 
 \item{keywords}{Character vector. One or more keywords to search for.}
 
@@ -45,12 +46,14 @@ orcid_search(
 \item{...}{Additional parameters passed to \code{\link{orcid}}.}
 }
 \value{
-A data.table of search results (same structure as \code{\link{orcid}}).
+A data.table of search results (same structure as
+\code{\link{orcid}}).
 The total number of matches is available as \code{attr(result, "found")}.
 }
 \description{
 Search for ORCID profiles using named parameters instead of Solr query
-syntax. This function provides a more intuitive interface than \code{\link{orcid}}.
+syntax. This function provides a more intuitive interface than
+\code{\link{orcid}}.
 }
 \details{
 This function constructs a Solr query from the provided parameters and

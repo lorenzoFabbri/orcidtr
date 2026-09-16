@@ -25,7 +25,7 @@ skip_if_offline <- function() {
           ignore.case = TRUE
         )
       ) {
-        skip("ORCID API not accessible")
+        testthat::skip("ORCID API not accessible")
       }
       invisible(TRUE)
     }

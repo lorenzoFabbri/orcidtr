@@ -9,7 +9,8 @@
 #' @param stop_on_error Logical. If TRUE, stops with an error for invalid IDs.
 #'   If FALSE, returns FALSE for invalid IDs.
 #'
-#' @return Logical. TRUE if valid, FALSE if invalid (when stop_on_error = FALSE).
+#' @return Logical. TRUE if valid, FALSE if invalid (when stop_on_error =
+#'   FALSE).
 #' @keywords internal
 #' @noRd
 #'
@@ -76,7 +77,8 @@ validate_orcid <- function(orcid_id, stop_on_error = TRUE) {
 #' @examples
 #' \dontrun{
 #' normalize_orcid("0000000218250097") # "0000-0002-1825-0097"
-#' normalize_orcid("https://orcid.org/0000-0002-1825-0097") # "0000-0002-1825-0097"
+#' normalize_orcid("https://orcid.org/0000-0002-1825-0097") #
+#' "0000-0002-1825-0097"
 #' }
 normalize_orcid <- function(orcid_id) {
   if (is.null(orcid_id) || length(orcid_id) != 1) {

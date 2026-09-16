@@ -1,11 +1,9 @@
 # ==============================================================================
 # Test Suite: Biographical Data Functions
 # ==============================================================================
-# Tests for person/biographical data API functions and their parsers:
-# - orcid_person(), orcid_bio(), orcid_keywords(), orcid_researcher_urls()
-# - orcid_external_identifiers(), orcid_other_names(), orcid_address(), orcid_email()
-# - parse_person(), parse_bio(), parse_keywords(), parse_researcher_urls()
-# - parse_external_identifiers(), parse_other_names(), parse_address(), parse_email()
+# Tests for the biographical API functions orcid_person, orcid_bio,
+# orcid_keywords, orcid_researcher_urls, orcid_external_identifiers,
+# orcid_other_names, orcid_address and orcid_email, and for their parsers.
 
 # Helper: Skip if ORCID API is not accessible
 skip_if_offline <- function() {
@@ -26,7 +24,7 @@ skip_if_offline <- function() {
           ignore.case = TRUE
         )
       ) {
-        skip("ORCID API not accessible")
+        testthat::skip("ORCID API not accessible")
       }
       invisible(TRUE)
     }

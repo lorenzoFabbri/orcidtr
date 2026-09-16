@@ -178,12 +178,14 @@ orcid <- function(query = NULL, rows = 10, start = 0, token = NULL, ...) {
 #'
 #' @description
 #' Search for ORCID profiles using named parameters instead of Solr query
-#' syntax. This function provides a more intuitive interface than \code{\link{orcid}}.
+#' syntax. This function provides a more intuitive interface than
+#' \code{\link{orcid}}.
 #'
 #' @param given_name Character string. Given (first) name to search for.
 #' @param family_name Character string. Family (last) name to search for.
 #' @param affiliation_org Character string. Organization name.
-#' @param email Character string. Email address (supports wildcards like *@example.org).
+#' @param email Character string. Email address (supports wildcards like
+#'   *@example.org).
 #' @param keywords Character vector. One or more keywords to search for.
 #' @param digital_object_ids Character string. DOI or DOI pattern.
 #' @param other_name Character string. Alternative name.
@@ -193,7 +195,8 @@ orcid <- function(query = NULL, rows = 10, start = 0, token = NULL, ...) {
 #' @param token Character string or NULL. Optional API token.
 #' @param ... Additional parameters passed to \code{\link{orcid}}.
 #'
-#' @return A data.table of search results (same structure as \code{\link{orcid}}).
+#' @return A data.table of search results (same structure as
+#'   \code{\link{orcid}}).
 #'   The total number of matches is available as \code{attr(result, "found")}.
 #'
 #' @details

@@ -62,7 +62,8 @@ all_works <- orcid_fetch_many(orcids, section = "works")
 
 }
 \references{
-ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+ORCID API Documentation:
+\url{https://info.orcid.org/documentation/api-tutorials/}
 }
 \seealso{
 Useful links:

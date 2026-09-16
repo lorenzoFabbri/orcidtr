@@ -6,7 +6,8 @@
 #' including reviewer roles, review types, and organizations.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'   Most public data is accessible without authentication.
@@ -18,7 +19,8 @@
 #'     \item{reviewer_role}{Role of the reviewer (e.g., reviewer, editor)}
 #'     \item{review_type}{Type of review (e.g., review, evaluation)}
 #'     \item{review_completion_date}{Date the review was completed (ISO format)}
-#'     \item{organization}{Name of the convening organization (e.g., journal, conference)}
+#'     \item{organization}{Name of the convening organization (e.g., journal,
+#'     conference)}
 #'   }
 #'   Returns an empty data.table with the same structure if no peer review
 #'   records are found.
@@ -34,10 +36,12 @@
 #' User-Agent headers identifying the orcidtr package.
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
-#' \code{\link{orcid_works}}, \code{\link{orcid_funding}}, \code{\link{orcid_fetch_record}}
+#' \code{\link{orcid_works}}, \code{\link{orcid_funding}},
+#' \code{\link{orcid_fetch_record}}
 #'
 #' @examples
 #' \dontrun{
@@ -46,7 +50,8 @@
 #' print(reviews)
 #'
 #' # With an explicit token
-#' reviews <- orcid_peer_reviews("0000-0002-1825-0097", token = "your-token-here")
+#' reviews <- orcid_peer_reviews("0000-0002-1825-0097", token =
+#' "your-token-here")
 #' }
 #'
 #' @export

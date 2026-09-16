@@ -6,7 +6,8 @@
 #' with work details including titles, types, DOIs, and publication dates.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'   Most public data is accessible without authentication.
@@ -19,7 +20,8 @@
 #'     \item{type}{Type of work. Common values include: "journal-article",
 #'       "conference-paper", "conference-poster", "book", "book-chapter",
 #'       "dissertation", "data-set", "preprint", "report", "working-paper",
-#'       "other". Use this field to distinguish between different publication types.}
+#'       "other". Use this field to distinguish between different publication
+#'       types.}
 #'     \item{publication_date}{Publication date (ISO format)}
 #'     \item{journal}{Journal or venue name (if available)}
 #'     \item{doi}{Digital Object Identifier (if available)}
@@ -39,10 +41,12 @@
 #' User-Agent headers identifying the orcidtr package.
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
-#' \code{\link{orcid_employments}}, \code{\link{orcid_funding}}, \code{\link{orcid_fetch_record}}
+#' \code{\link{orcid_employments}}, \code{\link{orcid_funding}},
+#' \code{\link{orcid_fetch_record}}
 #'
 #' @examples
 #' \dontrun{

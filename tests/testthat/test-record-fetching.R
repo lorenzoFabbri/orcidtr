@@ -1,10 +1,8 @@
 # ==============================================================================
 # Test Suite: Comprehensive Record Fetching
 # ==============================================================================
-# Tests for comprehensive data fetching functions:
-# - orcid_activities(), orcid_ping()
-# - orcid_fetch_record(), orcid_fetch_many()
-# - parse_activities()
+# Tests for the record-fetching functions orcid_activities, orcid_ping,
+# orcid_fetch_record, orcid_fetch_many and parse_activities.
 
 # Helper: Skip if ORCID API is not accessible
 skip_if_offline <- function() {
@@ -25,7 +23,7 @@ skip_if_offline <- function() {
           ignore.case = TRUE
         )
       ) {
-        skip("ORCID API not accessible")
+        testthat::skip("ORCID API not accessible")
       }
       invisible(TRUE)
     }

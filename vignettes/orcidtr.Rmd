@@ -78,11 +78,14 @@ print(education[, .(organization, role, start_date, end_date)])
 works <- orcid_works("0000-0003-4757-117X")
 
 # Display summary
+n_articles <- sum(works$type == "journal-article", na.rm = TRUE)
 cat(sprintf("Total works: %d\n", nrow(works)))
-cat(sprintf("Journal articles: %d\n", sum(works$type == "journal-article", na.rm = TRUE)))
+cat(sprintf("Journal articles: %d\n", n_articles))
 
 # View recent publications
-recent_works <- works[order(-publication_date)][1:5, .(title, type, publication_date, doi)]
+recent_works <- works[order(-publication_date)][
+  1:5, .(title, type, publication_date, doi)
+]
 print(recent_works)
 
 # Fetch funding information

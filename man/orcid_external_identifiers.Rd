@@ -8,7 +8,8 @@ orcid_external_identifiers(orcid_id, token = NULL)
 }
 \arguments{
 \item{orcid_id}{Character string. A valid ORCID identifier in the format
-XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
+XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
 
 \item{token}{Character string or NULL. Optional API token for authenticated
 requests. If NULL (default), no token is sent.}
@@ -18,7 +19,8 @@ A data.table with the following columns:
 \describe{
 \item{orcid}{ORCID identifier}
 \item{put_code}{Unique identifier for this external ID}
-\item{external_id_type}{Type of external identifier (e.g., "Scopus Author ID")}
+\item{external_id_type}{Type of external identifier (e.g., "Scopus Author
+ID")}
 \item{external_id_value}{The identifier value}
 \item{external_id_url}{URL to the external profile (if available)}
 }
@@ -43,7 +45,8 @@ print(ext_ids)
 
 }
 \references{
-ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+ORCID API Documentation:
+\url{https://info.orcid.org/documentation/api-tutorials/}
 }
 \seealso{
 \code{\link{orcid_person}}

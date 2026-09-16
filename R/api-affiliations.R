@@ -5,7 +5,8 @@
 #' identifier. Returns structured data similar to employments and educations.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'
@@ -30,10 +31,12 @@
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/distinctions}
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
-#' \code{\link{orcid_employments}}, \code{\link{orcid_educations}}, \code{\link{orcid_activities}}
+#' \code{\link{orcid_employments}}, \code{\link{orcid_educations}},
+#' \code{\link{orcid_activities}}
 #'
 #' @examples
 #' \dontrun{
@@ -60,7 +63,8 @@ orcid_distinctions <- function(orcid_id, token = NULL) {
 #' visiting professorships, guest lectureships, etc.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'
@@ -85,7 +89,8 @@ orcid_distinctions <- function(orcid_id, token = NULL) {
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/invited-positions}
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
 #' \code{\link{orcid_employments}}, \code{\link{orcid_activities}}
@@ -115,7 +120,8 @@ orcid_invited_positions <- function(orcid_id, token = NULL) {
 #' memberships in professional societies, organizations, etc.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'
@@ -140,7 +146,8 @@ orcid_invited_positions <- function(orcid_id, token = NULL) {
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/memberships}
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
 #' \code{\link{orcid_employments}}, \code{\link{orcid_activities}}
@@ -170,7 +177,8 @@ orcid_memberships <- function(orcid_id, token = NULL) {
 #' licenses, certifications, etc.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'
@@ -195,7 +203,8 @@ orcid_memberships <- function(orcid_id, token = NULL) {
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/qualifications}
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
 #' \code{\link{orcid_educations}}, \code{\link{orcid_activities}}
@@ -222,10 +231,12 @@ orcid_qualifications <- function(orcid_id, token = NULL) {
 #'
 #' @description
 #' Fetches service activity records for an ORCID identifier, such as
-#' committee memberships, editorial board positions, peer review activities, etc.
+#' committee memberships, editorial board positions, peer review activities,
+#' etc.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'
@@ -250,7 +261,8 @@ orcid_qualifications <- function(orcid_id, token = NULL) {
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/services}
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
 #' \code{\link{orcid_peer_reviews}}, \code{\link{orcid_activities}}
@@ -280,7 +292,8 @@ orcid_services <- function(orcid_id, token = NULL) {
 #' facilities, equipment, databases, collections, etc.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'
@@ -304,7 +317,8 @@ orcid_services <- function(orcid_id, token = NULL) {
 #' with a focus on the resource itself rather than organizational affiliations.
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
 #' \code{\link{orcid_works}}, \code{\link{orcid_activities}}

@@ -2,10 +2,12 @@
 #'
 #' @description
 #' Fetches comprehensive personal information including name, biography,
-#' keywords, researcher URLs, and other public profile data from an ORCID record.
+#' keywords, researcher URLs, and other public profile data from an ORCID
+#' record.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'   Most public data is accessible without authentication.
@@ -32,10 +34,12 @@
 #' and external identifiers.
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
-#' \code{\link{orcid_bio}}, \code{\link{orcid_keywords}}, \code{\link{orcid_researcher_urls}}
+#' \code{\link{orcid_bio}}, \code{\link{orcid_keywords}},
+#' \code{\link{orcid_researcher_urls}}
 #'
 #' @examples
 #' \dontrun{
@@ -65,7 +69,8 @@ orcid_person <- function(orcid_id, token = NULL) {
 #' the biography text.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'
@@ -82,7 +87,8 @@ orcid_person <- function(orcid_id, token = NULL) {
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/biography}
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
 #' \code{\link{orcid_person}}
@@ -107,7 +113,8 @@ orcid_bio <- function(orcid_id, token = NULL) {
 #' identify research areas and interests.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'
@@ -125,7 +132,8 @@ orcid_bio <- function(orcid_id, token = NULL) {
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/keywords}
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
 #' \code{\link{orcid_person}}
@@ -150,7 +158,8 @@ orcid_keywords <- function(orcid_id, token = NULL) {
 #' such as personal websites, institutional profiles, social media, etc.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'
@@ -169,7 +178,8 @@ orcid_keywords <- function(orcid_id, token = NULL) {
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/researcher-urls}
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
 #' \code{\link{orcid_person}}, \code{\link{orcid_external_identifiers}}
@@ -195,7 +205,8 @@ orcid_researcher_urls <- function(orcid_id, token = NULL) {
 #' systems.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'
@@ -203,7 +214,8 @@ orcid_researcher_urls <- function(orcid_id, token = NULL) {
 #'   \describe{
 #'     \item{orcid}{ORCID identifier}
 #'     \item{put_code}{Unique identifier for this external ID}
-#'     \item{external_id_type}{Type of external identifier (e.g., "Scopus Author ID")}
+#'     \item{external_id_type}{Type of external identifier (e.g., "Scopus Author
+#'     ID")}
 #'     \item{external_id_value}{The identifier value}
 #'     \item{external_id_url}{URL to the external profile (if available)}
 #'   }
@@ -215,7 +227,8 @@ orcid_researcher_urls <- function(orcid_id, token = NULL) {
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/external-identifiers}
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
 #' \code{\link{orcid_person}}
@@ -245,7 +258,8 @@ orcid_external_identifiers <- function(orcid_id, token = NULL) {
 #' with an ORCID record.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'
@@ -263,7 +277,8 @@ orcid_external_identifiers <- function(orcid_id, token = NULL) {
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/other-names}
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
 #' \code{\link{orcid_person}}
@@ -287,7 +302,8 @@ orcid_other_names <- function(orcid_id, token = NULL) {
 #' Fetches address/country information associated with an ORCID record.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
 #'   requests. If NULL (default), no token is sent.
 #'
@@ -305,7 +321,8 @@ orcid_other_names <- function(orcid_id, token = NULL) {
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/address}
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
 #' \code{\link{orcid_person}}
@@ -330,7 +347,8 @@ orcid_address <- function(orcid_id, token = NULL) {
 #' addresses are typically private and require authentication to access.
 #'
 #' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
+#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
+#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. API token for authenticated requests.
 #'   If NULL (default), no token is sent. Email
 #'   addresses usually require authentication.
@@ -354,7 +372,8 @@ orcid_address <- function(orcid_id, token = NULL) {
 #' appropriate authentication permissions.
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @seealso
 #' \code{\link{orcid_person}}

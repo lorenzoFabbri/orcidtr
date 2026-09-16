@@ -37,7 +37,8 @@
 #' * CRAN-compliant
 #'
 #' @references
-#' ORCID API Documentation: \url{https://info.orcid.org/documentation/api-tutorials/}
+#' ORCID API Documentation:
+#' \url{https://info.orcid.org/documentation/api-tutorials/}
 #'
 #' @examples
 #' \dontrun{
@@ -53,7 +54,8 @@
 #' }
 #'
 #' @importFrom data.table data.table rbindlist
-#' @importFrom httr2 request req_headers req_perform req_retry req_error resp_status resp_status_desc resp_body_string
+#' @importFrom httr2 request req_headers req_perform req_retry req_error
+#'   resp_status resp_status_desc resp_body_string
 #' @importFrom jsonlite fromJSON
 ## usethis namespace: start
 ## usethis namespace: end

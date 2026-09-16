@@ -1,5 +1,6 @@
 # ==============================================================================
-# Test Suite: Research Outputs (Employment, Education, Works, Funding, Peer Reviews)
+# Test Suite: Research Outputs (Employment, Education, Works, Funding, Peer
+# Reviews)
 # ==============================================================================
 # Tests for research output and career history API functions and their parsers:
 # - orcid_employments(), orcid_educations()
@@ -26,7 +27,7 @@ skip_if_offline <- function() {
           ignore.case = TRUE
         )
       ) {
-        skip("ORCID API not accessible")
+        testthat::skip("ORCID API not accessible")
       }
       invisible(TRUE)
     }
