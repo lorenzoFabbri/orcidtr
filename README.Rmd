@@ -182,17 +182,13 @@ token_data <- resp_body_json(resp)
 token <- token_data$access_token
 ```
 
-6. Set the environment variable:
+6. Pass the token to any function that accepts one:
 
 ```{r, eval = FALSE}
-# In your .Renviron file (recommended for persistent use)
-ORCID_TOKEN <- "your-token-here"
-
-# Or set temporarily in R session
-Sys.setenv(ORCID_TOKEN = "your-token-here")
+works <- orcidtr::orcid_works("0000-0002-1825-0097", token = token)
 ```
 
-**Note:** The package will automatically use the `ORCID_TOKEN` environment variable if it's set. For the public API, this is purely optional and most users can skip this entire section.
+**Note:** No function reads `ORCID_TOKEN` from the environment. If you keep a token in `.Renviron`, retrieve it with `Sys.getenv("ORCID_TOKEN")` and pass it through. For the public API this is optional, and most users can skip this section entirely.
 
 ## Supported Data Types
 
@@ -279,3 +275,4 @@ MIT © Lorenzo Fabbri
 - ORCiD for providing the public API
 - The `rorcid` package authors for leading ORCiD integration in R
 - The R community for feedback and contributions
+- Parts of this package were written with the assistance of Claude Code (Anthropic); all code has been reviewed and tested by the author

@@ -330,27 +330,18 @@ Most users do not need authentication. Consider getting a token only if:
 1. Register for ORCID API credentials at [https://orcid.org/developer-tools](https://orcid.org/developer-tools)
 2. Click "Register for the free ORCID public API"
 3. Follow the OAuth2 client credentials flow to obtain an access token
-4. Set the environment variable:
-
-```{r auth-setup}
-# Set temporarily in session
-Sys.setenv(ORCID_TOKEN = "your-token-here")
-
-# Or add to .Renviron file (recommended for persistent use)
-# ORCID_TOKEN=your-token-here
-```
 
 ### Using Authentication
 
+Every function that accepts a token takes it as an argument. No function reads one from the environment, so a token you keep in `.Renviron` has to be retrieved and passed through yourself.
+
 ```{r auth-usage}
-# The token is automatically used if ORCID_TOKEN environment variable is set
-works <- orcid_works("0000-0003-4757-117X")
-
-# Or pass explicitly (overrides environment variable)
+# Pass the token explicitly
 works <- orcid_works("0000-0003-4757-117X", token = "your-token-here")
-```
 
-**Note:** If you set an ORCID_TOKEN environment variable but find it's not working, unset it. The public API works fine without any token.
+# Or read it from your own environment variable
+works <- orcid_works("0000-0003-4757-117X", token = Sys.getenv("ORCID_TOKEN"))
+```
 
 ## API Status and Error Handling
 

@@ -8,7 +8,7 @@
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A named list with data.table elements for each activity section:
 #'   \describe{

@@ -4,9 +4,9 @@
 \name{orcidtr-package}
 \alias{orcidtr-package}
 \alias{orcidtr}
-\title{orcidtr: Retrieve Data from the ORCID Public API}
+\title{orcidtr: Retrieve Data from the 'ORCID' Public API}
 \description{
-Provides functions to retrieve public data from ORCID (Open Researcher and Contributor ID) records via the ORCID public API. Fetches employment history, education, works (publications, datasets, preprints), funding, peer review activities, and other public information. Returns data as structured data.table objects for easy analysis and manipulation. Replaces the discontinued 'rorcid' package with a modern, CRAN-compliant implementation.
+Provides functions to retrieve public data from 'ORCID' (Open Researcher and Contributor ID) records via the 'ORCID' public API \url{https://info.orcid.org/documentation/api-tutorials/}. Fetches employment history, education, works (publications, datasets, preprints), funding, peer review activities, and other public information. Returns data as structured 'data.table' objects for easy analysis and manipulation. Replaces the discontinued 'rorcid' package with a modern, CRAN-compliant implementation.
 
 The orcidtr package provides a modern, CRAN-compliant interface to the ORCID
 public API. It allows you to retrieve employment history, education records,
@@ -28,10 +28,11 @@ researcher profiles.
 
 \section{Authentication}{
 
-Most public data is accessible without authentication. To use an optional
-API token, set the \code{ORCID_TOKEN} environment variable:
+The public API needs no authentication, and no token is read from the
+environment. Pass one explicitly to raise your rate limit or to reach data
+you have been granted access to:
 
-\code{Sys.setenv(ORCID_TOKEN = "your-token-here")}
+\code{orcid_works("0000-0002-1825-0097", token = "your-token-here")}
 }
 
 \section{Package Design}{
@@ -73,6 +74,11 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: Lorenzo Fabbri \email{lorenzo.fabbri92sm@gmail.com}
+
+Authors:
+\itemize{
+  \item Lorenzo Fabbri \email{lorenzo.fabbri92sm@gmail.com}
+}
 
 }
 \keyword{internal}

@@ -96,13 +96,9 @@ orcid <- function(query = NULL, rows = 10, start = 0, token = NULL, ...) {
     stop("start must be a non-negative integer", call. = FALSE)
   }
 
-  # Get token
-  if (is.null(token)) {
-    token <- Sys.getenv("ORCID_TOKEN", unset = "")
-    if (token == "") {
-      token <- NULL
-    }
-  }
+  # A token is sent only when the caller passes one. The public API does not
+  # require authentication and rejects an invalid token with a 401, so reading
+  # one from the environment turns a stale credential into a hard failure.
 
   # Construct URL
   url <- paste0(orcid_base_url(), "/expanded-search")

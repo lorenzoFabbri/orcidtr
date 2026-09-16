@@ -1,3 +1,9 @@
+# orcidtr (development version)
+
+- `orcid()`, and with it `orcid_search()` and `orcid_doi()`, no longer read the `ORCID_TOKEN` environment variable. This was the last code path that still did, contrary to what the 0.1.0 notes stated, so a stale token in `.Renviron` made every search fail with a 401 while the record endpoints worked. Pass a token explicitly via the `token` argument instead.
+- Corrected the README, the vignette, the package-level help and every `@param token` block, all of which described the environment variable as being picked up automatically.
+- `Title` and `Description` now quote software and API names and cite the ORCID API documentation, following CRAN's style requirements.
+
 # orcidtr 0.1.0
 
 ## Breaking Changes (December 28, 2025)

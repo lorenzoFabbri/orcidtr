@@ -8,7 +8,7 @@
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'   Most public data is accessible without authentication.
 #'
 #' @return A data.table with the following columns:
@@ -45,9 +45,8 @@
 #' reviews <- orcid_peer_reviews("0000-0002-1825-0097")
 #' print(reviews)
 #'
-#' # With authentication
-#' Sys.setenv(ORCID_TOKEN = "your-token-here")
-#' reviews <- orcid_peer_reviews("0000-0002-1825-0097")
+#' # With an explicit token
+#' reviews <- orcid_peer_reviews("0000-0002-1825-0097", token = "your-token-here")
 #' }
 #'
 #' @export

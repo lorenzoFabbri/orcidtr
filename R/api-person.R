@@ -7,7 +7,7 @@
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'   Most public data is accessible without authentication.
 #'
 #' @return A data.table with the following columns:
@@ -47,9 +47,8 @@
 #' person$biography
 #' person$keywords
 #'
-#' # With authentication
-#' Sys.setenv(ORCID_TOKEN = "your-token-here")
-#' person <- orcid_person("0000-0002-1825-0097")
+#' # With an explicit token
+#' person <- orcid_person("0000-0002-1825-0097", token = "your-token-here")
 #' }
 #'
 #' @export
@@ -68,7 +67,7 @@ orcid_person <- function(orcid_id, token = NULL) {
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -110,7 +109,7 @@ orcid_bio <- function(orcid_id, token = NULL) {
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -153,7 +152,7 @@ orcid_keywords <- function(orcid_id, token = NULL) {
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -198,7 +197,7 @@ orcid_researcher_urls <- function(orcid_id, token = NULL) {
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -248,7 +247,7 @@ orcid_external_identifiers <- function(orcid_id, token = NULL) {
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -290,7 +289,7 @@ orcid_other_names <- function(orcid_id, token = NULL) {
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -333,7 +332,7 @@ orcid_address <- function(orcid_id, token = NULL) {
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. API token for authenticated requests.
-#'   If NULL (default), checks the ORCID_TOKEN environment variable. Email
+#'   If NULL (default), no token is sent. Email
 #'   addresses usually require authentication.
 #'
 #' @return A data.table with the following columns:
@@ -363,8 +362,7 @@ orcid_address <- function(orcid_id, token = NULL) {
 #' @examples
 #' \dontrun{
 #' # Fetch email (requires authentication)
-#' Sys.setenv(ORCID_TOKEN = "your-token-here")
-#' email <- orcid_email("0000-0002-1825-0097")
+#' email <- orcid_email("0000-0002-1825-0097", token = "your-token-here")
 #' print(email)
 #' }
 #'

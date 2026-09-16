@@ -15,7 +15,7 @@ orcid_fetch_record(
 XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
 
 \item{token}{Character string or NULL. Optional API token for authenticated
-requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+requests. If NULL (default), no token is sent.
 Most public data is accessible without authentication.}
 
 \item{sections}{Character vector. Sections to fetch. Default is the most
@@ -82,9 +82,8 @@ record <- orcid_fetch_record(
   sections = c("works", "funding")
 )
 
-# With authentication
-Sys.setenv(ORCID_TOKEN = "your-token-here")
-record <- orcid_fetch_record("0000-0002-1825-0097")
+# With an explicit token
+record <- orcid_fetch_record("0000-0002-1825-0097", token = "your-token-here")
 }
 
 }

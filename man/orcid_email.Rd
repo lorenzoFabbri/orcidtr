@@ -11,7 +11,7 @@ orcid_email(orcid_id, token = NULL)
 XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
 
 \item{token}{Character string or NULL. API token for authenticated requests.
-If NULL (default), checks the ORCID_TOKEN environment variable. Email
+If NULL (default), no token is sent. Email
 addresses usually require authentication.}
 }
 \value{
@@ -40,8 +40,7 @@ appropriate authentication permissions.
 \examples{
 \dontrun{
 # Fetch email (requires authentication)
-Sys.setenv(ORCID_TOKEN = "your-token-here")
-email <- orcid_email("0000-0002-1825-0097")
+email <- orcid_email("0000-0002-1825-0097", token = "your-token-here")
 print(email)
 }
 

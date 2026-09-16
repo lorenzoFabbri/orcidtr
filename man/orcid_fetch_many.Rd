@@ -21,7 +21,7 @@ XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-
 or "peer-reviews".}
 
 \item{token}{Character string or NULL. Optional API token for authenticated
-requests. If NULL (default), checks the ORCID_TOKEN environment variable.}
+requests. If NULL (default), no token is sent.}
 
 \item{stop_on_error}{Logical. If TRUE, stops on the first error. If FALSE
 (default), continues processing and returns results for successful requests,

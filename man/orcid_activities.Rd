@@ -11,7 +11,7 @@ orcid_activities(orcid_id, token = NULL)
 XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
 
 \item{token}{Character string or NULL. Optional API token for authenticated
-requests. If NULL (default), checks the ORCID_TOKEN environment variable.}
+requests. If NULL (default), no token is sent.}
 }
 \value{
 A named list with data.table elements for each activity section:

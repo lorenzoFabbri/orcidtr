@@ -11,7 +11,7 @@ orcid_employments(orcid_id, token = NULL)
 XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
 
 \item{token}{Character string or NULL. Optional API token for authenticated
-requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+requests. If NULL (default), no token is sent.
 Most public data is accessible without authentication.}
 }
 \value{
@@ -49,9 +49,8 @@ User-Agent headers identifying the orcidtr package.
 emp <- orcid_employments("0000-0002-1825-0097")
 print(emp)
 
-# With authentication
-Sys.setenv(ORCID_TOKEN = "your-token-here")
-emp <- orcid_employments("0000-0002-1825-0097")
+# With an explicit token
+emp <- orcid_employments("0000-0002-1825-0097", token = "your-token-here")
 }
 
 }

@@ -22,10 +22,11 @@
 #' * `orcid_fetch_many()`: Batch fetch for multiple ORCIDs
 #'
 #' @section Authentication:
-#' Most public data is accessible without authentication. To use an optional
-#' API token, set the `ORCID_TOKEN` environment variable:
+#' The public API needs no authentication, and no token is read from the
+#' environment. Pass one explicitly to raise your rate limit or to reach data
+#' you have been granted access to:
 #'
-#' \code{Sys.setenv(ORCID_TOKEN = "your-token-here")}
+#' \code{orcid_works("0000-0002-1825-0097", token = "your-token-here")}
 #'
 #' @section Package Design:
 #' * Uses native pipe (`|>`) operator

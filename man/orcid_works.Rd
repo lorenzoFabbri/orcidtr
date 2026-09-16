@@ -11,7 +11,7 @@ orcid_works(orcid_id, token = NULL)
 XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
 
 \item{token}{Character string or NULL. Optional API token for authenticated
-requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+requests. If NULL (default), no token is sent.
 Most public data is accessible without authentication.}
 }
 \value{
@@ -59,9 +59,8 @@ conference_posters <- works[type == "conference-poster"]
 datasets <- works[type == "data-set"]
 preprints <- works[type == "preprint"]
 
-# With authentication
-Sys.setenv(ORCID_TOKEN = "your-token-here")
-works <- orcid_works("0000-0002-1825-0097")
+# With an explicit token
+works <- orcid_works("0000-0002-1825-0097", token = "your-token-here")
 }
 
 }

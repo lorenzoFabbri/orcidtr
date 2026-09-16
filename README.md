@@ -3,12 +3,16 @@
 
 <!-- badges: start -->
 
-[![Lifecycle:active](https://img.shields.io/badge/lifecycle-active-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#active)
-[![CRAN status](https://www.r-pkg.org/badges/version/orcidtr)](https://CRAN.R-project.org/package=orcidtr)
-[![](https://cranlogs.r-pkg.org/badges/orcidtr)](https://cran.r-project.org/package=orcidtr)
+[![Lifecycle:
+active](https://img.shields.io/badge/lifecycle-active-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#active)
+
+[![CRAN
+status](https://www.r-pkg.org/badges/version/orcidtr)](https://CRAN.R-project.org/package=orcidtr)
+
 [![R-CMD-check](https://github.com/lorenzoFabbri/orcidtr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lorenzoFabbri/orcidtr/actions/workflows/R-CMD-check.yaml)
 [![codecov](https://codecov.io/gh/lorenzoFabbri/orcidtr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/lorenzoFabbri/orcidtr)
-[![Buy Me a Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=☕&slug=epilorenzo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff)](https://buymeacoffee.com/epilorenzo)
+[![Buy Me a
+Coffee](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=☕&slug=epilorenzo&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff)](https://buymeacoffee.com/epilorenzo)
 
 <!-- badges: end -->
 
@@ -185,19 +189,16 @@ token_data <- resp_body_json(resp)
 token <- token_data$access_token
 ```
 
-6.  Set the environment variable:
+6.  Pass the token to any function that accepts one:
 
 ``` r
-# In your .Renviron file (recommended for persistent use)
-ORCID_TOKEN <- "your-token-here"
-
-# Or set temporarily in R session
-Sys.setenv(ORCID_TOKEN = "your-token-here")
+works <- orcidtr::orcid_works("0000-0002-1825-0097", token = token)
 ```
 
-**Note:** The package will automatically use the `ORCID_TOKEN`
-environment variable if it’s set. For the public API, this is purely
-optional and most users can skip this entire section.
+**Note:** No function reads `ORCID_TOKEN` from the environment. If you
+keep a token in `.Renviron`, retrieve it with
+`Sys.getenv("ORCID_TOKEN")` and pass it through. For the public API this
+is optional, and most users can skip this section entirely.
 
 ## Supported Data Types
 
@@ -285,3 +286,5 @@ MIT © Lorenzo Fabbri
 - ORCiD for providing the public API
 - The `rorcid` package authors for leading ORCiD integration in R
 - The R community for feedback and contributions
+- Parts of this package were written with the assistance of Claude Code
+  (Anthropic); all code has been reviewed and tested by the author

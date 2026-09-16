@@ -7,7 +7,7 @@
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -62,7 +62,7 @@ orcid_distinctions <- function(orcid_id, token = NULL) {
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -117,7 +117,7 @@ orcid_invited_positions <- function(orcid_id, token = NULL) {
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -172,7 +172,7 @@ orcid_memberships <- function(orcid_id, token = NULL) {
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -227,7 +227,7 @@ orcid_qualifications <- function(orcid_id, token = NULL) {
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -282,7 +282,7 @@ orcid_services <- function(orcid_id, token = NULL) {
 #' @param orcid_id Character string. A valid ORCID identifier in the format
 #'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like https://orcid.org/XXXX-XXXX-XXXX-XXXX.
 #' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), checks the ORCID_TOKEN environment variable.
+#'   requests. If NULL (default), no token is sent.
 #'
 #' @return A data.table with the following columns:
 #'   \describe{

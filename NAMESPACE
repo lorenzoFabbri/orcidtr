@@ -26,14 +26,18 @@ export(orcid_researcher_urls)
 export(orcid_search)
 export(orcid_services)
 export(orcid_works)
-importFrom(data.table,data.table)
-importFrom(data.table,rbindlist)
-importFrom(httr2,req_error)
-importFrom(httr2,req_headers)
-importFrom(httr2,req_perform)
-importFrom(httr2,req_retry)
-importFrom(httr2,request)
-importFrom(httr2,resp_body_string)
-importFrom(httr2,resp_status)
-importFrom(httr2,resp_status_desc)
+importFrom(data.table,
+  data.table,
+  rbindlist
+)
+importFrom(httr2,
+  req_error,
+  req_headers,
+  req_perform,
+  req_retry,
+  request,
+  resp_body_string,
+  resp_status,
+  resp_status_desc
+)
 importFrom(jsonlite,fromJSON)
