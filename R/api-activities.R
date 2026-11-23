@@ -5,11 +5,7 @@
 #' in a single API call. This is more efficient than calling individual
 #' endpoints when you need multiple activity types.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A named list with data.table elements for each activity section:
 #'   \describe{

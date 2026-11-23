@@ -16,8 +16,8 @@ check: build
 
 install_deps:
 	Rscript \
-	-e 'if (!requireNamespace("remotes")) install.packages("remotes")' \
-	-e 'remotes::install_deps(dependencies = TRUE)'
+	-e 'if (!requireNamespace("pak")) install.packages("pak")' \
+	-e 'pak::local_install_dev_deps()'
 
 install: build
 	R CMD INSTALL $(PKGNAME)_$(PKGVERS).tar.gz

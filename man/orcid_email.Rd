@@ -7,41 +7,41 @@
 orcid_email(orcid_id, token = NULL)
 }
 \arguments{
-\item{orcid_id}{Character string. A valid ORCID identifier in the format
-XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
+\item{orcid_id}{Character string. An ORCID iD such as
+\code{"0000-0002-1825-0097"}. The dashes and an \verb{https://orcid.org/} prefix are
+optional.}
 
-\item{token}{Character string or NULL. API token for authenticated requests.
-If NULL (default), no token is sent. Email
-addresses usually require authentication.}
+\item{token}{Character string or \code{NULL}. Optional \verb{/read-public} access
+token. The public API needs none: it returns the same public data either
+way, and a token only raises the daily read quota. See the Authentication
+section of \link{orcidtr-package}.}
 }
 \value{
 A data.table with the following columns:
 \describe{
 \item{orcid}{ORCID identifier}
 \item{email}{Email address}
-\item{primary}{Logical indicating if this is the primary email}
-\item{verified}{Logical indicating if the email is verified}
-\item{visibility}{Visibility setting}
+\item{verified}{Logical; whether ORCID has verified the address}
+\item{primary}{Logical; whether this is the primary address}
 }
-Returns an empty data.table with the same structure if no emails
-are found or accessible.
+Returns an empty data.table with the same structure if no email is
+public.
 }
 \description{
-Fetches email addresses associated with an ORCID record. Note that email
-addresses are typically private and require authentication to access.
+Fetches the email addresses that the record holder has made public. Most
+researchers keep their email private, so the result is usually empty.
 }
 \details{
 This function queries the ORCID public API endpoint:
 \code{https://pub.orcid.org/v3.0/{orcid-id}/email}
 
-Email addresses are typically private and will only be returned if you have
-appropriate authentication permissions.
+The public API returns only public data, with or without a token. Reading
+an email with limited visibility needs the researcher's permission through
+the Member API, which this package does not use.
 }
 \examples{
 \dontrun{
-# Fetch email (requires authentication)
-email <- orcid_email("0000-0002-1825-0097", token = "your-token-here")
+email <- orcid_email("0000-0002-1825-0097")
 print(email)
 }
 

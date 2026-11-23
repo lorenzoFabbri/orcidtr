@@ -1,8 +1,8 @@
 ---
-title: "Getting Started with orcidtr"
+title: "Getting started with orcidtr"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Getting Started with orcidtr}
+  %\VignetteIndexEntry{Getting started with orcidtr}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,462 +15,154 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Introduction
+orcidtr reads public data from ORCID records and returns each section as a data.table. The code in this vignette is not run when the vignette is built, because it needs the ORCID API; run it yourself to see the output.
 
-**orcidtr** provides a modern, user-friendly interface to the ORCID public API. ORCID (Open Researcher and Contributor ID) is a persistent digital identifier for researchers that connects researchers with their professional activities. This package allows you to programmatically fetch:
+The examples use three records: Josiah Carberry (`0000-0002-1825-0097`), a fictitious researcher whose record ORCID keeps for demonstrations; Hadley Wickham (`0000-0003-4757-117X`); and Martin Fenner (`0000-0003-1419-2405`).
 
-- **Biographical data**: Names, biographies, keywords, researcher URLs
-- **Professional affiliations**: Employments, education, distinctions, memberships
-- **Research outputs**: Publications, datasets, funding, peer reviews
-- **Search capabilities**: Find researchers by name, affiliation, or DOI
-
-All functions return structured `data.table` objects for efficient data manipulation and analysis.
-
-## Installation
-
-```{r installation}
-# Install from CRAN (when available)
-install.packages("orcidtr")
-
-# Or install development version from GitHub
-# install.packages("pak")
-pak::pak("lorenzoFabbri/orcidtr")
-```
-
-## Basic Usage
-
-### Fetching Researcher Information
-
-Let's start by fetching basic biographical information for a researcher. We'll use Hadley Wickham's ORCID as an example:
-
-```{r person-data}
+```{r setup}
 library(orcidtr)
+library(data.table)
+```
 
-# Fetch complete person data
+## One section of one record
+
+Each section of a record has its own function. It takes an ORCID iD, with or without dashes or an `https://orcid.org/` prefix, and returns one row per item. A section the researcher has left empty gives a zero-row table with the same columns, so filtering and binding code does not need a special case for it.
+
+```{r sections}
 person <- orcid_person("0000-0003-4757-117X")
-print(person)
+person[, .(given_names, family_name, country)]
 
-# Fetch just the biography
-bio <- orcid_bio("0000-0003-4757-117X")
-print(bio$biography)
-
-# Fetch research keywords
-keywords <- orcid_keywords("0000-0003-4757-117X")
-print(keywords)
-```
-
-### Employment and Education History
-
-```{r affiliations}
-# Fetch employment history
 employments <- orcid_employments("0000-0003-4757-117X")
-print(employments[, .(organization, role, city, country, start_date, end_date)])
+employments[, .(organization, role, start_date, end_date)]
 
-# Fetch education records
-education <- orcid_educations("0000-0003-4757-117X")
-print(education[, .(organization, role, start_date, end_date)])
+orcid_educations("0000-0003-4757-117X")
+orcid_keywords("0000-0003-4757-117X")
 ```
 
-### Research Outputs
+Works carry their type, publication date, journal and DOI. Dates are strings in ISO order (`"2014"`, `"2014-08"` or `"2014-08-29"`) because ORCID often records only the year or the month, so they sort correctly as text:
 
-```{r research-outputs}
-# Fetch publications and other works
+```{r works}
 works <- orcid_works("0000-0003-4757-117X")
+works[, .N, by = type][order(-N)]
 
-# Display summary
-n_articles <- sum(works$type == "journal-article", na.rm = TRUE)
-cat(sprintf("Total works: %d\n", nrow(works)))
-cat(sprintf("Journal articles: %d\n", n_articles))
+recent <- works[order(publication_date, decreasing = TRUE)]
+head(recent[, .(title, type, publication_date, doi)], 5)
 
-# View recent publications
-recent_works <- works[order(-publication_date)][
-  1:5, .(title, type, publication_date, doi)
-]
-print(recent_works)
-
-# Fetch funding information
-funding <- orcid_funding("0000-0003-4757-117X")
-if (nrow(funding) > 0) {
-  print(funding[, .(title, organization, start_date, amount, currency)])
-}
-
-# Fetch peer review activities
-reviews <- orcid_peer_reviews("0000-0003-4757-117X")
-if (nrow(reviews) > 0) {
-  cat(sprintf("Total peer reviews: %d\n", nrow(reviews)))
-}
+works[, year := as.integer(substr(publication_date, 1, 4))]
+works[!is.na(year), .N, by = year][order(year)]
 ```
 
-### Professional Activities
-
-```{r professional-activities}
-# Fetch distinctions and awards
-distinctions <- orcid_distinctions("0000-0003-4757-117X")
-if (nrow(distinctions) > 0) {
-  print(distinctions[, .(organization, role, start_date)])
-}
-
-# Fetch professional memberships
-memberships <- orcid_memberships("0000-0003-4757-117X")
-if (nrow(memberships) > 0) {
-  print(memberships[, .(organization, role, start_date, end_date)])
-}
-
-# Fetch all affiliations types
-invited_positions <- orcid_invited_positions("0000-0003-4757-117X")
-qualifications <- orcid_qualifications("0000-0003-4757-117X")
-services <- orcid_services("0000-0003-4757-117X")
-```
-
-## Efficient Data Retrieval
-
-### Fetching Complete Records
-
-Instead of calling multiple individual functions, you can fetch all sections at once:
-
-```{r complete-record}
-# Fetch everything
-record <- orcid_fetch_record("0000-0003-4757-117X")
-names(record)
-
-# Access individual sections
-record$works
-record$employments
-record$person
-
-# Fetch only specific sections for efficiency
-record <- orcid_fetch_record(
-  "0000-0003-4757-117X",
-  sections = c("works", "employments", "funding")
-)
-```
-
-### Getting All Activities in One Call
-
-The `orcid_activities()` function provides summaries of all activity types in a single API request:
+Funding, peer reviews and the remaining affiliation types follow the same pattern:
 
 ```{r activities}
-# Fetch all activities summary
+orcid_funding("0000-0003-1419-2405")
+orcid_peer_reviews("0000-0002-1825-0097")
+orcid_distinctions("0000-0003-1419-2405")
+orcid_memberships("0000-0003-1419-2405")
+```
+
+## Several sections or several records
+
+`orcid_fetch_record()` sends one request per section and returns a named list. The default sections are employments, educations, works, funding and peer reviews; `sections` selects others. A section whose request fails becomes an empty table and a warning, so one failure does not lose the rest.
+
+```{r fetch-record}
+record <- orcid_fetch_record(
+  "0000-0003-4757-117X",
+  sections = c("works", "employments", "person")
+)
+names(record)
+record$person
+```
+
+`orcid_activities()` gets the summaries of every activity section in a single request. It is the cheaper choice when you need several sections of one record:
+
+```{r activities-summary}
 activities <- orcid_activities("0000-0003-4757-117X")
-
-# Access different activity types
-activities$works
-activities$employments
-activities$fundings
-activities$distinctions
+vapply(activities, nrow, integer(1))
 ```
 
-### Batch Processing Multiple ORCIDs
+`orcid_fetch_many()` fetches one section for many records and binds the rows, with the `orcid` column saying which record each row came from. Invalid iDs and failed requests produce warnings and are skipped unless `stop_on_error = TRUE`:
 
-When working with multiple researchers, use `orcid_fetch_many()`:
-
-```{r batch-processing}
-# Define multiple ORCIDs
-orcids <- c(
-  "0000-0003-4757-117X",  # Hadley Wickham
-  "0000-0002-1825-0097",  # Yihui Xie
-  "0000-0003-1419-2405"   # Jenny Bryan
-)
-
-# Fetch works for all
-all_works <- orcid_fetch_many(orcids, section = "works")
-
-# Analyze combined data
-works_by_researcher <- all_works[, .N, by = orcid]
-print(works_by_researcher)
-
-# Get works by type across all researchers
-works_by_type <- all_works[, .N, by = type][order(-N)]
-print(works_by_type)
-```
-
-## Searching the ORCID Registry
-
-### Basic Search
-
-```{r search-basic}
-# Search by family name
-results <- orcid_search(family_name = "Wickham")
-print(results[, .(orcid_id, given_names, family_name)])
-
-# Search by affiliation
-results <- orcid_search(
-  affiliation_org = "Stanford University",
-  rows = 20
-)
-
-# Combine multiple criteria
-results <- orcid_search(
-  family_name = "Smith",
-  given_names = "John",
-  affiliation_org = "MIT"
-)
-```
-
-### Advanced Search with Solr Queries
-
-For more complex searches, use the `orcid()` function with Solr syntax:
-
-```{r search-advanced}
-# Search with field-specific queries
-results <- orcid(
-  query = 'family-name:Smith AND affiliation-org-name:"Harvard University"',
-  rows = 10
-)
-
-# Search by keywords
-results <- orcid(
-  query = 'keyword:("machine learning" OR "artificial intelligence")',
-  rows = 15
-)
-
-# Check total number of results
-cat(sprintf("Total found: %d\n", attr(results, "found")))
-cat(sprintf("Returned: %d\n", nrow(results)))
-```
-
-### Search by DOI
-
-Find researchers associated with specific publications:
-
-```{r search-doi}
-# Search for a single DOI
-results <- orcid_doi("10.1371/journal.pone.0001543")
-
-# Search for multiple DOIs
-dois <- c(
-  "10.1371/journal.pone.0001543",
-  "10.1038/nature12345"
-)
-results <- orcid_doi(dois, rows = 50)
-```
-
-## Data Analysis Examples
-
-### Publication Trends Over Time
-
-```{r analysis-trends}
-library(orcidtr)
-
-# Fetch works
-works <- orcid_works("0000-0003-4757-117X")
-
-# Extract publication years
-works[, pub_year := as.integer(substr(publication_date, 1, 4))]
-
-# Count publications by year
-pub_by_year <- works[!is.na(pub_year), .N, by = pub_year][order(pub_year)]
-print(pub_by_year)
-
-# Publications by type
-pub_by_type <- works[, .N, by = type][order(-N)]
-print(pub_by_type)
-```
-
-### Collaboration Networks
-
-```{r analysis-networks}
-# Fetch works for multiple researchers
+```{r fetch-many}
 orcids <- c(
   "0000-0003-4757-117X",
   "0000-0002-1825-0097",
   "0000-0003-1419-2405"
 )
-
 all_works <- orcid_fetch_many(orcids, section = "works")
-
-# Count works per researcher
-works_count <- all_works[, .N, by = orcid]
-print(works_count)
-
-# Get researchers with most recent publications
-recent_cutoff <- "2020-01-01"
-recent_works <- all_works[publication_date >= recent_cutoff]
-recent_count <- recent_works[, .N, by = orcid]
-print(recent_count)
+all_works[, .N, by = orcid]
+all_works[publication_date >= "2020", .N, by = orcid]
 ```
 
-### Funding Analysis
+## Searching the registry
 
-```{r analysis-funding}
-# Fetch funding for a researcher
-funding <- orcid_funding("0000-0003-4757-117X")
+`orcid_search()` builds a query from named fields and combines them with `AND`. Values with spaces are quoted for you, so `affiliation_org = "Stanford University"` matches that phrase. Several keywords match any of them.
 
-# Summarize by organization
-funding_by_org <- funding[, .N, by = organization][order(-N)]
-print(funding_by_org)
-
-# Funding by type
-funding_by_type <- funding[, .N, by = type][order(-N)]
-print(funding_by_type)
-
-# Active grants
-active_grants <- funding[
-  is.na(end_date) | end_date >= Sys.Date()
-]
-print(active_grants[, .(title, organization, start_date)])
+```{r search}
+orcid_search(family_name = "Wickham", given_name = "Hadley")
+orcid_search(affiliation_org = "Stanford University", rows = 20)
+orcid_search(keywords = c("psychoceramics", "ionian philology"))
 ```
 
-## Authentication (Optional)
+`orcid()` sends a raw [Solr query](https://info.orcid.org/documentation/api-tutorials/api-tutorial-searching-the-orcid-registry/). Here you quote multi-word values yourself: unquoted, `affiliation-org-name:Stanford University` also matches every record that mentions "University" anywhere. The `found` attribute gives the total number of matches, and `start` pages through them.
 
-**Important:** The ORCID public API does NOT require authentication for reading public data. All functions in this package work without any token by default.
+```{r solr}
+results <- orcid(
+  'keyword:"machine learning" AND affiliation-org-name:"Harvard University"',
+  rows = 50
+)
+attr(results, "found")
 
-Authentication is entirely optional and only provides:
-
-- **Higher API rate limits** - Useful if making many requests rapidly
-- **Access to private data** - Only if you've been explicitly granted permission
-
-### When You Need Authentication
-
-Most users do not need authentication. Consider getting a token only if:
-
-- You're making very frequent requests (>24/second sustained)
-- Building an application with many concurrent users
-- Accessing private data you've been granted permission to view
-
-### Setting Up Authentication (If Needed)
-
-1. Register for ORCID API credentials at [https://orcid.org/developer-tools](https://orcid.org/developer-tools)
-2. Click "Register for the free ORCID public API"
-3. Follow the OAuth2 client credentials flow to obtain an access token
-
-### Using Authentication
-
-Every function that accepts a token takes it as an argument. No function reads one from the environment, so a token you keep in `.Renviron` has to be retrieved and passed through yourself.
-
-```{r auth-usage}
-# Pass the token explicitly
-works <- orcid_works("0000-0003-4757-117X", token = "your-token-here")
-
-# Or read it from your own environment variable
-works <- orcid_works("0000-0003-4757-117X", token = Sys.getenv("ORCID_TOKEN"))
+page2 <- orcid('keyword:"machine learning"', rows = 50, start = 50)
 ```
 
-## API Status and Error Handling
+`orcid_doi()` finds the records that list a DOI among their works. With several DOIs it returns a list named by DOI, and `fuzzy = TRUE` treats each DOI as a prefix:
 
-### Checking API Health
-
-```{r api-status}
-# Check if ORCID API is online
-status <- orcid_ping()
-print(status)
+```{r doi}
+orcid_doi("10.1371/journal.pone.0025995")
+orcid_doi(c("10.1038/nature12373", "10.1126/science.1260419"))
+orcid_doi("10.1371/journal.pone", fuzzy = TRUE, rows = 20)
 ```
 
-### Handling Errors
+## Limits and tokens
 
-```{r error-handling}
-# Wrap API calls in tryCatch for production use
+ORCID limits anonymous use of the public API to 12 requests a second, with up to 40 queued, and to 25,000 reads a day from each IP address. Registering a public API client and using its `/read-public` token raises the daily quota to 100,000 reads per client; the per-second rate stays the same. These are the figures on [ORCID's API limits page](https://info.orcid.org/ufaqs/what-are-the-api-limits/) as of November 2026.
+
+orcidtr sends requests one after another and tries a request up to three times when ORCID answers 429 or 503, which it does when the queue is full. A batch of a few hundred records needs no extra care. For a batch that approaches the daily quota, get a token: register a public API client in your ORCID account's developer tools, then exchange its client ID and secret for a token.
+
+```{r token}
+library(httr2)
+
+token <- request("https://orcid.org/oauth/token") |>
+  req_headers(Accept = "application/json") |>
+  req_body_form(
+    client_id = "YOUR-CLIENT-ID",
+    client_secret = "YOUR-CLIENT-SECRET",
+    grant_type = "client_credentials",
+    scope = "/read-public"
+  ) |>
+  req_perform() |>
+  resp_body_json()
+
+works <- orcid_works("0000-0003-4757-117X", token = token$access_token)
+```
+
+The token lasts about twenty years. No function reads it from the environment, because the public API rejects an invalid token even though it needs none, so a stale token left in `.Renviron` would break every call. If you keep one there, pass it explicitly with `token = Sys.getenv("ORCID_TOKEN")`.
+
+A token does not reveal more of a record. The public API returns only what the researcher has made public; data with limited visibility needs the researcher's permission through the Member API, which this package does not use. For this reason `orcid_email()` usually returns an empty table.
+
+## Errors
+
+A malformed iD fails before any request is sent. A record that does not exist, a rejected token and an exhausted quota each stop with a message naming the cause. `orcid_ping()` tells you whether the API itself is up:
+
+```{r errors}
+orcid_ping()
+
 result <- tryCatch(
-  {
-    orcid_works("0000-0003-4757-117X")
-  },
+  orcid_works("0000-0000-0000-0000"),
   error = function(e) {
-    message("Failed to fetch works: ", conditionMessage(e))
-    data.table::data.table()  # Return empty data.table
+    message(conditionMessage(e))
+    NULL
   }
 )
-
-# For batch operations, use stop_on_error = FALSE
-orcids <- c("0000-0003-4757-117X", "invalid-orcid", "0000-0002-1825-0097")
-
-all_works <- orcid_fetch_many(
-  orcids,
-  section = "works",
-  stop_on_error = FALSE  # Continue despite errors
-)
 ```
-
-## Best Practices
-
-### Rate Limiting
-
-The ORCID public API has rate limits (~24 requests/second for unauthenticated requests). For large batch operations:
-
-```{r rate-limiting}
-# Add delays between requests
-orcids <- c("0000-0003-4757-117X", "0000-0002-1825-0097", "0000-0003-1419-2405")
-
-results <- lapply(orcids, function(id) {
-  result <- orcid_works(id)
-  Sys.sleep(0.1)  # 100ms delay
-  result
-})
-
-all_results <- data.table::rbindlist(results)
-```
-
-### Caching Results
-
-For frequently accessed data, consider caching:
-
-```{r caching}
-# Simple file-based cache
-cache_file <- "orcid_cache.rds"
-
-fetch_with_cache <- function(orcid_id) {
-  if (file.exists(cache_file)) {
-    cache <- readRDS(cache_file)
-    if (orcid_id %in% names(cache)) {
-      message("Using cached data for ", orcid_id)
-      return(cache[[orcid_id]])
-    }
-  } else {
-    cache <- list()
-  }
-
-  # Fetch fresh data
-  data <- orcid_fetch_record(orcid_id)
-  cache[[orcid_id]] <- data
-  saveRDS(cache, cache_file)
-
-  data
-}
-
-record <- fetch_with_cache("0000-0003-4757-117X")
-```
-
-### Working with data.table
-
-All functions return `data.table` objects, which provide efficient data manipulation:
-
-```{r data-table-usage}
-library(data.table)
-
-works <- orcid_works("0000-0003-4757-117X")
-
-# Filter by type
-articles <- works[type == "journal-article"]
-
-# Select specific columns
-works[, .(title, publication_date, doi)]
-
-# Chain operations
-works[
-  type == "journal-article" & !is.na(doi)
-][
-  order(-publication_date)
-][1:10, .(title, doi)]
-
-# Aggregate
-works[, .N, by = type][order(-N)]
-```
-
-## Additional Resources
-
-- **ORCID API Documentation**: https://info.orcid.org/documentation/api-tutorials/
-- **Package Repository**: https://github.com/lorenzoFabbri/orcidtr
-- **Report Issues**: https://github.com/lorenzoFabbri/orcidtr/issues
-- **ORCID Registry**: https://orcid.org
-
-## Summary
-
-The **orcidtr** package provides comprehensive access to ORCID data with:
-
-- Simple, consistent function interface
-- Efficient `data.table` return objects
-- Batch processing capabilities
-- Flexible search functions
-- No authentication required for public data
-- Full CRAN compliance
-
-For more information, see `help(package = "orcidtr")` or visit the package website.

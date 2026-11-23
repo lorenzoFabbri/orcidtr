@@ -2,7 +2,7 @@
 % Please edit documentation in R/search.R
 \name{orcid_search}
 \alias{orcid_search}
-\title{User-friendly ORCID search}
+\title{Search the ORCID registry by named fields}
 \usage{
 orcid_search(
   given_name = NULL,
@@ -15,74 +15,61 @@ orcid_search(
   credit_name = NULL,
   rows = 10,
   start = 0,
-  token = NULL,
-  ...
+  token = NULL
 )
 }
 \arguments{
-\item{given_name}{Character string. Given (first) name to search for.}
+\item{given_name}{Character string. Given name.}
 
-\item{family_name}{Character string. Family (last) name to search for.}
+\item{family_name}{Character string. Family name.}
 
 \item{affiliation_org}{Character string. Organization name.}
 
-\item{email}{Character string. Email address (supports wildcards like
-*@example.org).}
+\item{email}{Character string. Email address; wildcards such as
+\code{"*@example.org"} are allowed.}
 
-\item{keywords}{Character vector. One or more keywords to search for.}
+\item{keywords}{Character vector. One or more keywords; a record matches if
+it has any of them.}
 
-\item{digital_object_ids}{Character string. DOI or DOI pattern.}
+\item{digital_object_ids}{Character string. DOI, or a DOI prefix ending in
+\code{*}.}
 
 \item{other_name}{Character string. Alternative name.}
 
-\item{credit_name}{Character string. Credit/published name.}
+\item{credit_name}{Character string. Published name.}
 
-\item{rows}{Integer. Number of results to return (default: 10).}
+\item{rows}{Integer. Number of results to return, from 1 to 1000. Default 10.}
 
-\item{start}{Integer. Starting position for pagination (default: 0).}
+\item{start}{Integer. Offset of the first result, for pagination. Default 0.}
 
-\item{token}{Character string or NULL. Optional API token.}
-
-\item{...}{Additional parameters passed to \code{\link{orcid}}.}
+\item{token}{Character string or \code{NULL}. Optional \verb{/read-public} access
+token. The public API needs none: it returns the same public data either
+way, and a token only raises the daily read quota. See the Authentication
+section of \link{orcidtr-package}.}
 }
 \value{
-A data.table of search results (same structure as
-\code{\link{orcid}}).
-The total number of matches is available as \code{attr(result, "found")}.
+A data.table with the same columns as \code{\link[=orcid]{orcid()}}, and the total
+number of matches in \code{attr(result, "found")}.
 }
 \description{
-Search for ORCID profiles using named parameters instead of Solr query
-syntax. This function provides a more intuitive interface than
-\code{\link{orcid}}.
+Builds a Solr query from named arguments and passes it to \code{\link[=orcid]{orcid()}}.
 }
 \details{
-This function constructs a Solr query from the provided parameters and
-calls \code{\link{orcid}} internally. Multiple parameters are combined
-with AND logic. Uses the expanded-search endpoint to return name information.
+Each argument becomes one \code{field:value} term, and the terms are combined
+with \code{AND}. Values containing spaces or slashes are wrapped in double
+quotes, so \code{affiliation_org = "Stanford University"} matches that phrase
+rather than any record mentioning "University". Calling the function with
+no criteria returns an empty result with a warning.
 }
 \examples{
 \dontrun{
-# Search by name
-results <- orcid_search(
-  family_name = "Fabbri",
-  given_name = "Lorenzo"
-)
-
-# Search by affiliation
-results <- orcid_search(affiliation_org = "Stanford University")
-
-# Search by keywords
-results <- orcid_search(keywords = c("machine learning", "genomics"))
-
-# Combine multiple criteria
-results <- orcid_search(
-  family_name = "Smith",
-  affiliation_org = "Harvard",
-  rows = 20
-)
+orcid_search(family_name = "Carberry", given_name = "Josiah")
+orcid_search(affiliation_org = "Stanford University")
+orcid_search(keywords = c("machine learning", "genomics"))
+orcid_search(family_name = "Smith", affiliation_org = "Harvard", rows = 20)
 }
 
 }
 \seealso{
-\code{\link{orcid}} for more flexible query syntax
+\code{\link[=orcid]{orcid()}} for arbitrary Solr queries.
 }

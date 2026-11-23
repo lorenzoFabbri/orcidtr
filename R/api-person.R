@@ -5,12 +5,7 @@
 #' keywords, researcher URLs, and other public profile data from an ORCID
 #' record.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
-#'   Most public data is accessible without authentication.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -21,7 +16,7 @@
 #'     \item{biography}{Biography text}
 #'     \item{keywords}{Comma-separated research keywords}
 #'     \item{researcher_urls}{Comma-separated professional URLs}
-#'     \item{country}{Country of residence}
+#'     \item{country}{Two-letter ISO country code of the first listed address}
 #'   }
 #'   Returns a data.table with NA values for missing fields.
 #'
@@ -29,9 +24,11 @@
 #' This function queries the ORCID public API endpoint:
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/person}
 #'
-#' This endpoint provides the most comprehensive biographical information in a
-#' single request, including name, biography, keywords, URLs, addresses, emails,
-#' and external identifiers.
+#' The function condenses the person section into one row. Keywords and
+#' researcher URLs are collapsed into comma-separated strings and only the
+#' first address is kept; use [orcid_keywords()], [orcid_researcher_urls()] and
+#' [orcid_address()] for one row per item, and [orcid_email()] and
+#' [orcid_external_identifiers()] for the parts this summary leaves out.
 #'
 #' @references
 #' ORCID API Documentation:
@@ -68,11 +65,7 @@ orcid_person <- function(orcid_id, token = NULL) {
 #' simplified alternative to \code{\link{orcid_person}} when you only need
 #' the biography text.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -112,11 +105,7 @@ orcid_bio <- function(orcid_id, token = NULL) {
 #' Fetches research keywords associated with an ORCID record. Keywords help
 #' identify research areas and interests.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -157,11 +146,7 @@ orcid_keywords <- function(orcid_id, token = NULL) {
 #' Fetches professional and personal URLs associated with an ORCID record,
 #' such as personal websites, institutional profiles, social media, etc.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -204,11 +189,7 @@ orcid_researcher_urls <- function(orcid_id, token = NULL) {
 #' Author ID, ResearcherID, Loop profile, and other researcher identification
 #' systems.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -257,11 +238,7 @@ orcid_external_identifiers <- function(orcid_id, token = NULL) {
 #' Fetches alternative names (also known as, published as, etc.) associated
 #' with an ORCID record.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -301,17 +278,13 @@ orcid_other_names <- function(orcid_id, token = NULL) {
 #' @description
 #' Fetches address/country information associated with an ORCID record.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
 #'     \item{orcid}{ORCID identifier}
 #'     \item{put_code}{Unique identifier for this address}
-#'     \item{country}{Country code}
+#'     \item{country}{Two-letter ISO country code}
 #'   }
 #'   Returns an empty data.table with the same structure if no address
 #'   information is found.
@@ -343,33 +316,28 @@ orcid_address <- function(orcid_id, token = NULL) {
 #' Retrieve email information from ORCID
 #'
 #' @description
-#' Fetches email addresses associated with an ORCID record. Note that email
-#' addresses are typically private and require authentication to access.
+#' Fetches the email addresses that the record holder has made public. Most
+#' researchers keep their email private, so the result is usually empty.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. API token for authenticated requests.
-#'   If NULL (default), no token is sent. Email
-#'   addresses usually require authentication.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
 #'     \item{orcid}{ORCID identifier}
 #'     \item{email}{Email address}
-#'     \item{primary}{Logical indicating if this is the primary email}
-#'     \item{verified}{Logical indicating if the email is verified}
-#'     \item{visibility}{Visibility setting}
+#'     \item{verified}{Logical; whether ORCID has verified the address}
+#'     \item{primary}{Logical; whether this is the primary address}
 #'   }
-#'   Returns an empty data.table with the same structure if no emails
-#'   are found or accessible.
+#'   Returns an empty data.table with the same structure if no email is
+#'   public.
 #'
 #' @details
 #' This function queries the ORCID public API endpoint:
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/email}
 #'
-#' Email addresses are typically private and will only be returned if you have
-#' appropriate authentication permissions.
+#' The public API returns only public data, with or without a token. Reading
+#' an email with limited visibility needs the researcher's permission through
+#' the Member API, which this package does not use.
 #'
 #' @references
 #' ORCID API Documentation:
@@ -380,8 +348,7 @@ orcid_address <- function(orcid_id, token = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' # Fetch email (requires authentication)
-#' email <- orcid_email("0000-0002-1825-0097", token = "your-token-here")
+#' email <- orcid_email("0000-0002-1825-0097")
 #' print(email)
 #' }
 #'

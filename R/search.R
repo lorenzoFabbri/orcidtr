@@ -1,71 +1,57 @@
-#' Search ORCID registry
+#' Search the ORCID registry with a Solr query
 #'
 #' @description
-#' Search for ORCID profiles using Apache Solr query syntax. This function
-#' provides direct access to the ORCID search API with full query capabilities.
+#' Sends an Apache Solr query to the ORCID expanded-search endpoint and returns
+#' the matching iDs with their names.
 #'
-#' @param query Character string. Solr query string (e.g., "keyword:ecology",
-#'   "family-name:Smith AND given-names:John"). If NULL, returns empty results.
-#' @param rows Integer. Number of results to return (default: 10, max: 1000).
-#' @param start Integer. Starting position for pagination (default: 0).
-#' @param token Character string or NULL. Optional API token. Most searches
-#'   work without authentication.
-#' @param ... Additional parameters passed to the API request.
+#' @param query Character string. Solr query, such as `"keyword:ecology"` or
+#'   `"family-name:Smith AND given-names:John"`. `NULL` or `""` returns an
+#'   empty result with a warning.
+#' @param rows Integer. Number of results to return, from 1 to 1000. Default 10.
+#' @param start Integer. Offset of the first result, for pagination. Default 0.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with columns:
 #'   \describe{
 #'     \item{orcid_id}{ORCID identifier}
 #'     \item{given_names}{Given name(s)}
 #'     \item{family_name}{Family name}
-#'     \item{credit_name}{Credit/published name}
-#'     \item{other_names}{Alternative names (list column)}
+#'     \item{credit_name}{Published name}
+#'     \item{other_names}{List column; each element is a character vector of
+#'       alternative names}
 #'   }
-#'   Returns empty data.table if no results found.
-#'   The total number of matches is available as \code{attr(result, "found")}.
+#'   The total number of matches, which can exceed `rows`, is in
+#'   \code{attr(result, "found")}. No matches give a zero-row table.
 #'
 #' @details
-#' This function queries the ORCID search endpoint:
-#' \code{https://pub.orcid.org/v3.0/expanded-search}
+#' This function queries \code{https://pub.orcid.org/v3.0/expanded-search},
+#' which returns names alongside each iD.
 #'
-#' The expanded-search endpoint returns name information along with ORCID IDs,
-#' unlike the basic search endpoint which only returns identifiers.
-#'
-#' **Query Field Examples:**
-#' \itemize{
-#'   \item \code{family-name:Smith}
-#'   \item \code{given-names:John}
-#'   \item \code{keyword:ecology}
-#'   \item \code{affiliation-org-name:Harvard}
-#'   \item \code{digital-object-ids:10.1371/*}
-#'   \item \code{email:*@example.org}
-#' }
-#'
-#' **Boolean Operators:**
-#' Use AND, OR, NOT for complex queries:
-#' \code{"family-name:Smith AND affiliation-org-name:Harvard"}
+#' Useful fields include `family-name`, `given-names`, `credit-name`,
+#' `other-names`, `keyword`, `affiliation-org-name`, `email` and
+#' `digital-object-ids`. Combine terms with `AND`, `OR` and `NOT`. Put a value
+#' that contains spaces or a slash in double quotes: Solr reads an unquoted
+#' second word as a separate term matched against every field, and an
+#' unquoted `/` as the start of a regular expression. A trailing `*` inside the
+#' quotes matches any suffix, so `digital-object-ids:"10.1371/*"` finds every
+#' record with a PLOS DOI.
 #'
 #' @references
-#' ORCID API Search Documentation: \url{https://info.orcid.org/documentation/api-tutorials/api-tutorial-searching-the-orcid-registry/}
+#' ORCID search tutorial:
+#' \url{https://info.orcid.org/documentation/api-tutorials/api-tutorial-searching-the-orcid-registry/}
 #'
 #' @seealso
-#' \code{\link{orcid_search}} for a more user-friendly interface,
-#' \code{\link{orcid_doi}} for DOI-specific searches
+#' [orcid_search()] to build the query from named arguments, [orcid_doi()] to
+#' search by DOI.
 #'
 #' @examples
 #' \dontrun{
-#' # Search by keyword
 #' results <- orcid("keyword:ecology", rows = 20)
-#' print(results)
-#' attr(results, "found")  # Total number of matches
+#' attr(results, "found")
 #'
-#' # Search by name
-#' results <- orcid("family-name:Fabbri AND given-names:Lorenzo")
-#'
-#' # Search by affiliation
-#' results <- orcid("affiliation-org-name:Stanford")
-#'
-#' # Search by DOI
-#' results <- orcid("digital-object-ids:10.1371/*")
+#' orcid("family-name:Carberry AND given-names:Josiah")
+#' orcid('affiliation-org-name:"Stanford University"')
+#' orcid('digital-object-ids:"10.1371/*"')
 #'
 #' # Pagination
 #' page1 <- orcid("keyword:genomics", rows = 10, start = 0)
@@ -73,161 +59,69 @@
 #' }
 #'
 #' @export
-orcid <- function(query = NULL, rows = 10, start = 0, token = NULL, ...) {
-  # Handle NULL query
-  if (is.null(query) || query == "") {
+orcid <- function(query = NULL, rows = 10, start = 0, token = NULL) {
+  if (is.null(query) || identical(query, "")) {
     warning("No query provided, returning empty results", call. = FALSE)
-    result <- data.table::data.table(
-      orcid_id = character(0),
-      given_names = character(0),
-      family_name = character(0),
-      credit_name = character(0),
-      other_names = list()
-    )
-    attr(result, "found") <- 0L
-    return(result)
+    return(empty_search_result())
+  }
+  if (!is.character(query) || length(query) != 1 || is.na(query)) {
+    stop("query must be a single character string", call. = FALSE)
+  }
+  if (!is_count(rows) || rows < 1 || rows > 1000) {
+    stop("rows must be a whole number between 1 and 1000", call. = FALSE)
+  }
+  if (!is_count(start) || start < 0) {
+    stop("start must be a non-negative whole number", call. = FALSE)
   }
 
-  # Validate parameters
-  if (!is.numeric(rows) || rows < 1 || rows > 1000) {
-    stop("rows must be between 1 and 1000", call. = FALSE)
-  }
-  if (!is.numeric(start) || start < 0) {
-    stop("start must be a non-negative integer", call. = FALSE)
-  }
-
-  # A token is sent only when the caller passes one. The public API does not
-  # require authentication and rejects an invalid token with a 401, so reading
-  # one from the environment turns a stale credential into a hard failure.
-
-  # Construct URL
-  url <- paste0(orcid_base_url(), "/expanded-search")
-
-  # Build request
-  req <- httr2::request(url) |>
-    httr2::req_headers(
-      Accept = "application/json",
-      `User-Agent` = paste0(
-        "orcidtr/",
-        utils::packageVersion("orcidtr"),
-        " (R package; https://github.com/lorenzoFabbri/orcidtr)"
-      )
-    ) |>
-    httr2::req_url_query(
-      q = query,
-      rows = rows,
-      start = start
-    )
-
-  # Add authentication if token available
-  if (!is.null(token) && nchar(token) > 0) {
-    req <- req |>
-      httr2::req_headers(Authorization = paste("Bearer", token))
-  }
-
-  # Perform request
-  resp <- tryCatch(
-    {
-      req |>
-        httr2::req_retry(max_tries = 3, max_seconds = 10) |>
-        httr2::req_error(is_error = function(resp) FALSE) |>
-        httr2::req_perform()
-    },
-    error = function(e) {
-      stop(
-        "Failed to connect to ORCID search API: ",
-        conditionMessage(e),
-        call. = FALSE
-      )
-    }
+  json_data <- orcid_get(
+    paste0(orcid_base_url(), "/expanded-search"),
+    query = list(q = query, rows = rows, start = start),
+    token = token,
+    what = "expanded-search"
   )
 
-  # Check for HTTP errors
-  status <- httr2::resp_status(resp)
-  if (status >= 400) {
-    stop(
-      "ORCID search API request failed with status ",
-      status,
-      ": ",
-      httr2::resp_status_desc(resp),
-      call. = FALSE
-    )
-  }
-
-  # Parse JSON response
-  json_data <- tryCatch(
-    {
-      body <- httr2::resp_body_string(resp)
-      jsonlite::fromJSON(body, simplifyVector = FALSE)
-    },
-    error = function(e) {
-      stop(
-        "Failed to parse ORCID search response: ",
-        conditionMessage(e),
-        call. = FALSE
-      )
-    }
-  )
-
-  # Parse and return
   parse_search_results(json_data)
 }
 
 
-#' User-friendly ORCID search
+#' Search the ORCID registry by named fields
 #'
 #' @description
-#' Search for ORCID profiles using named parameters instead of Solr query
-#' syntax. This function provides a more intuitive interface than
-#' \code{\link{orcid}}.
+#' Builds a Solr query from named arguments and passes it to [orcid()].
 #'
-#' @param given_name Character string. Given (first) name to search for.
-#' @param family_name Character string. Family (last) name to search for.
+#' @param given_name Character string. Given name.
+#' @param family_name Character string. Family name.
 #' @param affiliation_org Character string. Organization name.
-#' @param email Character string. Email address (supports wildcards like
-#'   *@example.org).
-#' @param keywords Character vector. One or more keywords to search for.
-#' @param digital_object_ids Character string. DOI or DOI pattern.
+#' @param email Character string. Email address; wildcards such as
+#'   `"*@example.org"` are allowed.
+#' @param keywords Character vector. One or more keywords; a record matches if
+#'   it has any of them.
+#' @param digital_object_ids Character string. DOI, or a DOI prefix ending in
+#'   `*`.
 #' @param other_name Character string. Alternative name.
-#' @param credit_name Character string. Credit/published name.
-#' @param rows Integer. Number of results to return (default: 10).
-#' @param start Integer. Starting position for pagination (default: 0).
-#' @param token Character string or NULL. Optional API token.
-#' @param ... Additional parameters passed to \code{\link{orcid}}.
+#' @param credit_name Character string. Published name.
+#' @inheritParams orcid
 #'
-#' @return A data.table of search results (same structure as
-#'   \code{\link{orcid}}).
-#'   The total number of matches is available as \code{attr(result, "found")}.
+#' @return A data.table with the same columns as [orcid()], and the total
+#'   number of matches in \code{attr(result, "found")}.
 #'
 #' @details
-#' This function constructs a Solr query from the provided parameters and
-#' calls \code{\link{orcid}} internally. Multiple parameters are combined
-#' with AND logic. Uses the expanded-search endpoint to return name information.
+#' Each argument becomes one `field:value` term, and the terms are combined
+#' with `AND`. Values containing spaces or slashes are wrapped in double
+#' quotes, so `affiliation_org = "Stanford University"` matches that phrase
+#' rather than any record mentioning "University". Calling the function with
+#' no criteria returns an empty result with a warning.
 #'
 #' @examples
 #' \dontrun{
-#' # Search by name
-#' results <- orcid_search(
-#'   family_name = "Fabbri",
-#'   given_name = "Lorenzo"
-#' )
-#'
-#' # Search by affiliation
-#' results <- orcid_search(affiliation_org = "Stanford University")
-#'
-#' # Search by keywords
-#' results <- orcid_search(keywords = c("machine learning", "genomics"))
-#'
-#' # Combine multiple criteria
-#' results <- orcid_search(
-#'   family_name = "Smith",
-#'   affiliation_org = "Harvard",
-#'   rows = 20
-#' )
+#' orcid_search(family_name = "Carberry", given_name = "Josiah")
+#' orcid_search(affiliation_org = "Stanford University")
+#' orcid_search(keywords = c("machine learning", "genomics"))
+#' orcid_search(family_name = "Smith", affiliation_org = "Harvard", rows = 20)
 #' }
 #'
-#' @seealso
-#' \code{\link{orcid}} for more flexible query syntax
+#' @seealso [orcid()] for arbitrary Solr queries.
 #'
 #' @export
 orcid_search <- function(
@@ -241,151 +135,90 @@ orcid_search <- function(
   credit_name = NULL,
   rows = 10,
   start = 0,
-  token = NULL,
-  ...
+  token = NULL
 ) {
-  # Build query components
+  fields <- list(
+    "given-names" = given_name,
+    "family-name" = family_name,
+    "affiliation-org-name" = affiliation_org,
+    "email" = email,
+    "digital-object-ids" = digital_object_ids,
+    "other-names" = other_name,
+    "credit-name" = credit_name
+  )
+  fields <- fields[!vapply(fields, is.null, logical(1))]
+
   query_parts <- character(0)
+  if (length(fields) > 0) {
+    query_parts <- paste0(names(fields), ":", vapply(fields, solr_value, ""))
+  }
 
-  if (!is.null(given_name)) {
-    query_parts <- c(query_parts, paste0("given-names:", given_name))
-  }
-  if (!is.null(family_name)) {
-    query_parts <- c(query_parts, paste0("family-name:", family_name))
-  }
-  if (!is.null(affiliation_org)) {
-    query_parts <- c(
-      query_parts,
-      paste0("affiliation-org-name:", affiliation_org)
-    )
-  }
-  if (!is.null(email)) {
-    query_parts <- c(query_parts, paste0("email:", email))
-  }
   if (!is.null(keywords)) {
-    # Handle multiple keywords
-    if (length(keywords) > 1) {
-      kw_query <- paste0(
-        "(",
-        paste(paste0("keyword:", keywords), collapse = " OR "),
-        ")"
-      )
-      query_parts <- c(query_parts, kw_query)
-    } else {
-      query_parts <- c(query_parts, paste0("keyword:", keywords))
-    }
-  }
-  if (!is.null(digital_object_ids)) {
+    kw <- paste0("keyword:", vapply(keywords, solr_value, ""))
     query_parts <- c(
       query_parts,
-      paste0("digital-object-ids:", digital_object_ids)
+      if (length(kw) > 1) paste0("(", paste(kw, collapse = " OR "), ")") else kw
     )
   }
-  if (!is.null(other_name)) {
-    query_parts <- c(query_parts, paste0("other-names:", other_name))
-  }
-  if (!is.null(credit_name)) {
-    query_parts <- c(query_parts, paste0("credit-name:", credit_name))
-  }
 
-  # Combine with AND
   if (length(query_parts) == 0) {
     warning(
       "No search criteria provided, returning empty results",
       call. = FALSE
     )
-    result <- data.table::data.table(
-      orcid_id = character(0),
-      given_names = character(0),
-      family_name = character(0),
-      credit_name = character(0),
-      other_names = list()
-    )
-    attr(result, "found") <- 0L
-    return(result)
+    return(empty_search_result())
   }
 
-  query <- paste(query_parts, collapse = " AND ")
-
-  # Call orcid() with constructed query
   orcid(
-    query = query,
+    query = paste(query_parts, collapse = " AND "),
     rows = rows,
     start = start,
-    token = token,
-    ...
+    token = token
   )
 }
 
 
-#' Search ORCID by DOI
+#' Search the ORCID registry by DOI
 #'
 #' @description
-#' Search for ORCID profiles associated with specific DOIs. This is a
-#' convenience wrapper around \code{\link{orcid}} for DOI-based searches.
+#' Finds the ORCID records that list a given DOI among their works.
 #'
-#' @param dois Character vector. One or more DOIs to search for.
-#' @param fuzzy Logical. Use fuzzy matching for DOI search (default: FALSE).
-#'   Fuzzy matching allows partial DOI matches.
-#' @param rows Integer. Number of results per DOI (default: 10).
-#' @param token Character string or NULL. Optional API token.
+#' @param dois Character vector. One or more DOIs.
+#' @param fuzzy Logical. If `TRUE`, each DOI is treated as a prefix: a `*` is
+#'   appended unless one is already present. Default `FALSE`.
+#' @param rows Integer. Number of results per DOI. Default 10.
+#' @inheritParams orcid_works
 #'
-#' @return A named list where each element corresponds to a DOI and contains
-#'   a data.table of search results. If only one DOI is provided, returns
-#'   the data.table directly. Empty data.tables are returned for DOIs with
-#'   no matches.
-#'
-#' @details
-#' This function searches the \code{digital-object-ids} field in the ORCID
-#' registry. When \code{fuzzy = TRUE}, wildcard matching is used to find
-#' partial DOI matches.
+#' @return For one DOI, a data.table with the same columns as [orcid()]. For
+#'   several, a list of such tables named by DOI. A DOI whose search fails
+#'   gives a zero-row table and a warning.
 #'
 #' @examples
 #' \dontrun{
-#' # Search by single DOI
-#' results <- orcid_doi("10.1371/journal.pone.0025995")
-#' print(results)
+#' orcid_doi("10.1371/journal.pone.0025995")
 #'
-#' # Search by multiple DOIs
-#' dois <- c("10.1038/nature12373", "10.1126/science.1260419")
-#' results <- orcid_doi(dois)
+#' results <- orcid_doi(c("10.1038/nature12373", "10.1126/science.1260419"))
 #' names(results)
 #'
-#' # Fuzzy search (partial DOI)
-#' results <- orcid_doi("10.1371/*", fuzzy = TRUE, rows = 20)
+#' # Every record with a PLOS ONE DOI
+#' orcid_doi("10.1371/journal.pone", fuzzy = TRUE, rows = 20)
 #' }
 #'
-#' @seealso
-#' \code{\link{orcid}}, \code{\link{orcid_search}}
+#' @seealso [orcid()], [orcid_search()]
 #'
 #' @export
 orcid_doi <- function(dois, fuzzy = FALSE, rows = 10, token = NULL) {
-  # Validate input
   if (is.null(dois) || length(dois) == 0) {
     stop("At least one DOI must be provided", call. = FALSE)
   }
 
-  # Function to search single DOI
   search_doi <- function(doi) {
-    # Construct query
-    if (fuzzy) {
-      # Add wildcard if not present and fuzzy matching requested
-      if (!grepl("\\*", doi)) {
-        doi_query <- paste0('"', doi, '*"')
-      } else {
-        doi_query <- paste0('"', doi, '"')
-      }
-    } else {
-      doi_query <- paste0('"', doi, '"')
+    if (fuzzy && !grepl("*", doi, fixed = TRUE)) {
+      doi <- paste0(doi, "*")
     }
-
-    query <- paste0("digital-object-ids:", doi_query)
-
-    # Search
+    query <- paste0('digital-object-ids:"', doi, '"')
     tryCatch(
-      {
-        orcid(query = query, rows = rows, token = token)
-      },
+      orcid(query = query, rows = rows, token = token),
       error = function(e) {
         warning(
           "Search failed for DOI ",
@@ -394,29 +227,50 @@ orcid_doi <- function(dois, fuzzy = FALSE, rows = 10, token = NULL) {
           conditionMessage(e),
           call. = FALSE
         )
-        # Return empty result
-        result <- data.table::data.table(
-          orcid_id = character(0),
-          given_names = character(0),
-          family_name = character(0),
-          credit_name = character(0),
-          other_names = list()
-        )
-        attr(result, "found") <- 0L
-        result
+        empty_search_result()
       }
     )
   }
 
-  # Search all DOIs
   results <- lapply(dois, search_doi)
   names(results) <- dois
 
-  # If single DOI, return data.table directly
   if (length(dois) == 1) {
     return(results[[1]])
   }
-
-  # Otherwise return named list
   results
+}
+
+
+#' Quote a Solr field value when it needs quoting
+#'
+#' @description
+#' Wraps a value in double quotes when it contains whitespace or a slash and is
+#' not quoted already. Inner double quotes are escaped.
+#'
+#' @param x Character string.
+#'
+#' @return Character string.
+#' @keywords internal
+#' @noRd
+solr_value <- function(x) {
+  if (!is.character(x) || length(x) != 1 || is.na(x)) {
+    stop("Search values must be single character strings", call. = FALSE)
+  }
+  if (grepl('^".*"$', x) || !grepl("[[:space:]/]", x)) {
+    return(x)
+  }
+  paste0('"', gsub('"', '\\\\"', x), '"')
+}
+
+
+#' Test whether a value is a single non-negative whole number
+#'
+#' @param x Value to test.
+#'
+#' @return Logical scalar.
+#' @keywords internal
+#' @noRd
+is_count <- function(x) {
+  is.numeric(x) && length(x) == 1 && !is.na(x) && x == round(x)
 }

@@ -166,7 +166,7 @@ test_that("orcid_ping handles connection failures", {
     {
       expect_error(
         orcid_ping(),
-        "Failed to connect to ORCID API status endpoint"
+        "Failed to connect to ORCID API"
       )
     }
   )
@@ -181,7 +181,7 @@ test_that("orcid_ping handles non-200 responses", {
     {
       expect_error(
         orcid_ping(),
-        "status check failed"
+        "not found|failed with status"
       )
     }
   )

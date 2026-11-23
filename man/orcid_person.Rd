@@ -7,13 +7,14 @@
 orcid_person(orcid_id, token = NULL)
 }
 \arguments{
-\item{orcid_id}{Character string. A valid ORCID identifier in the format
-XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
+\item{orcid_id}{Character string. An ORCID iD such as
+\code{"0000-0002-1825-0097"}. The dashes and an \verb{https://orcid.org/} prefix are
+optional.}
 
-\item{token}{Character string or NULL. Optional API token for authenticated
-requests. If NULL (default), no token is sent.
-Most public data is accessible without authentication.}
+\item{token}{Character string or \code{NULL}. Optional \verb{/read-public} access
+token. The public API needs none: it returns the same public data either
+way, and a token only raises the daily read quota. See the Authentication
+section of \link{orcidtr-package}.}
 }
 \value{
 A data.table with the following columns:
@@ -25,7 +26,7 @@ A data.table with the following columns:
 \item{biography}{Biography text}
 \item{keywords}{Comma-separated research keywords}
 \item{researcher_urls}{Comma-separated professional URLs}
-\item{country}{Country of residence}
+\item{country}{Two-letter ISO country code of the first listed address}
 }
 Returns a data.table with NA values for missing fields.
 }
@@ -38,9 +39,11 @@ record.
 This function queries the ORCID public API endpoint:
 \code{https://pub.orcid.org/v3.0/{orcid-id}/person}
 
-This endpoint provides the most comprehensive biographical information in a
-single request, including name, biography, keywords, URLs, addresses, emails,
-and external identifiers.
+The function condenses the person section into one row. Keywords and
+researcher URLs are collapsed into comma-separated strings and only the
+first address is kept; use \code{\link[=orcid_keywords]{orcid_keywords()}}, \code{\link[=orcid_researcher_urls]{orcid_researcher_urls()}} and
+\code{\link[=orcid_address]{orcid_address()}} for one row per item, and \code{\link[=orcid_email]{orcid_email()}} and
+\code{\link[=orcid_external_identifiers]{orcid_external_identifiers()}} for the parts this summary leaves out.
 }
 \examples{
 \dontrun{

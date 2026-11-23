@@ -7,12 +7,14 @@
 orcid_qualifications(orcid_id, token = NULL)
 }
 \arguments{
-\item{orcid_id}{Character string. A valid ORCID identifier in the format
-XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
+\item{orcid_id}{Character string. An ORCID iD such as
+\code{"0000-0002-1825-0097"}. The dashes and an \verb{https://orcid.org/} prefix are
+optional.}
 
-\item{token}{Character string or NULL. Optional API token for authenticated
-requests. If NULL (default), no token is sent.}
+\item{token}{Character string or \code{NULL}. Optional \verb{/read-public} access
+token. The public API needs none: it returns the same public data either
+way, and a token only raises the daily read quota. See the Authentication
+section of \link{orcidtr-package}.}
 }
 \value{
 A data.table with the following columns:

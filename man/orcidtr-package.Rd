@@ -8,67 +8,58 @@
 \description{
 Provides functions to retrieve public data from 'ORCID' (Open Researcher and Contributor ID) records via the 'ORCID' public API \url{https://info.orcid.org/documentation/api-tutorials/}. Fetches employment history, education, works (publications, datasets, preprints), funding, peer review activities, and other public information. Returns data as structured 'data.table' objects for easy analysis and manipulation. Replaces the discontinued 'rorcid' package with a modern, CRAN-compliant implementation.
 
-The orcidtr package provides a modern, CRAN-compliant interface to the ORCID
-public API. It allows you to retrieve employment history, education records,
-publications, funding information, and peer review activities from ORCID
-researcher profiles.
+orcidtr reads public data from ORCID records through the ORCID public API
+(version 3.0) and returns each section as a data.table: affiliations such
+as employments and educations, works, funding, peer reviews and
+biographical data. It can also search the ORCID registry.
 }
-\section{Main Functions}{
+\section{Main functions}{
 
 \itemize{
-\item \code{orcid_employments()}: Fetch employment history
-\item \code{orcid_educations()}: Fetch education records
-\item \code{orcid_works()}: Fetch publications and works
-\item \code{orcid_funding()}: Fetch funding records
-\item \code{orcid_peer_reviews()}: Fetch peer review activities
-\item \code{orcid_fetch_record()}: Fetch complete ORCID record
-\item \code{orcid_fetch_many()}: Batch fetch for multiple ORCIDs
+\item \code{\link[=orcid_works]{orcid_works()}}, \code{\link[=orcid_employments]{orcid_employments()}}, \code{\link[=orcid_educations]{orcid_educations()}},
+\code{\link[=orcid_funding]{orcid_funding()}} and \code{\link[=orcid_peer_reviews]{orcid_peer_reviews()}} fetch one section each.
+\item \code{\link[=orcid_fetch_record]{orcid_fetch_record()}} fetches several sections of one record.
+\item \code{\link[=orcid_fetch_many]{orcid_fetch_many()}} fetches one section for many records.
+\item \code{\link[=orcid]{orcid()}}, \code{\link[=orcid_search]{orcid_search()}} and \code{\link[=orcid_doi]{orcid_doi()}} search the registry.
 }
 }
 
 \section{Authentication}{
 
-The public API needs no authentication, and no token is read from the
-environment. Pass one explicitly to raise your rate limit or to reach data
-you have been granted access to:
+The public API needs no authentication, and no function reads a token from
+the environment. A \verb{/read-public} token, obtained by registering a public
+API client with ORCID, gives access to the same public data; it raises the
+daily read quota but not the request rate. Data with limited visibility is
+served only by the Member API, which this package does not use. Pass a
+token explicitly:
 
 \code{orcid_works("0000-0002-1825-0097", token = "your-token-here")}
-}
 
-\section{Package Design}{
-
-\itemize{
-\item Uses native pipe (\verb{|>}) operator
-\item Returns data.table objects
-\item Fully qualified function calls (no library imports in functions)
-\item No side effects or global state modifications
-\item Graceful error handling
-\item CRAN-compliant
-}
+The current limits are on the ORCID API limits page linked below.
 }
 
 \examples{
 \dontrun{
-# Fetch works for an ORCID
 works <- orcid_works("0000-0002-1825-0097")
-
-# Fetch complete record
 record <- orcid_fetch_record("0000-0002-1825-0097")
 
-# Batch fetch works for multiple ORCIDs
 orcids <- c("0000-0002-1825-0097", "0000-0003-1419-2405")
 all_works <- orcid_fetch_many(orcids, section = "works")
 }
 
 }
 \references{
-ORCID API Documentation:
+ORCID API tutorials:
 \url{https://info.orcid.org/documentation/api-tutorials/}
+
+ORCID API limits:
+\url{https://info.orcid.org/ufaqs/what-are-the-api-limits/}
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://github.com/lorenzoFabbri/orcidtr}
+  \item \url{https://lorenzofabbri.github.io/orcidtr/}
   \item Report bugs at \url{https://github.com/lorenzoFabbri/orcidtr/issues}
 }
 

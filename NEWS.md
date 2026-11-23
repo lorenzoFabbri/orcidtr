@@ -1,120 +1,36 @@
-# orcidtr (development version)
+# orcidtr 0.2.0
 
-- `orcid()`, and with it `orcid_search()` and `orcid_doi()`, no longer read the `ORCID_TOKEN` environment variable. This was the last code path that still did, contrary to what the 0.1.0 notes stated, so a stale token in `.Renviron` made every search fail with a 401 while the record endpoints worked. Pass a token explicitly via the `token` argument instead.
-- Corrected the README, the vignette, the package-level help and every `@param token` block, all of which described the environment variable as being picked up automatically.
-- `Title` and `Description` now quote software and API names and cite the ORCID API documentation, following CRAN's style requirements.
+## Breaking changes
+
+- `orcid()` and `orcid_search()` no longer take `...`. The argument was documented as passing extra parameters to the API but was ignored, so a misspelled argument such as `orcid_search(given_names = "John")` silently searched without that criterion. It now fails with "unused argument".
+- The `other_names` list column of search results holds a character vector per row instead of a list.
+
+## Bug fixes
+
+- `orcid_search()` quotes values that contain spaces or slashes. Before, `affiliation_org = "Stanford University"` sent `affiliation-org-name:Stanford University`, which Solr reads as "Stanford" in the affiliation field or "University" anywhere: 8.5 million matches instead of about 33,000.
+- Parsers return a zero-row table with the documented columns when the response lacks the expected list. Before, a missing key produced one row of `NA` values.
+- A field missing from every row is now a character column of `NA`, not a logical one, so results bind cleanly across records.
+- `orcid_activities()` returns each missing section with its usual columns rather than a table with no columns.
+- `orcid()`, `orcid_search()` and `orcid_doi()` no longer read the `ORCID_TOKEN` environment variable. This was the last code path that still did, contrary to the 0.1.0 notes, so a stale token in `.Renviron` made every search fail with a 401 while the record endpoints worked.
+- Search errors now report 404, 401, 429 and 503 responses with the same messages as the record functions, and a 503 is described as a possible rate-limit response.
+- `orcid()` checks that `query` is a single string and that `rows` and `start` are whole numbers.
+
+## Documentation
+
+- The documentation no longer says that a token raises the rate limit or gives access to private data. ORCID's public API serves only public data, and a `/read-public` token raises the daily read quota (from 25,000 reads per IP address to 100,000 per client) while the rate stays at 12 requests a second.
+- Examples that returned nothing now work: `digital-object-ids:10.1371/*` needs quotes, and `orcid_search()` takes `given_name`, not `given_names`.
+- The vignette named the wrong people for two example iDs; `0000-0002-1825-0097` is ORCID's fictitious demonstration record and `0000-0003-1419-2405` belongs to Martin Fenner.
+- `orcid_email()` no longer lists a `visibility` column it never returned, and its help no longer says a token reveals private addresses.
+- `Title` and `Description` quote software and API names and cite the ORCID API documentation, following CRAN's style requirements.
 
 # orcidtr 0.1.0
 
-## Breaking Changes (December 28, 2025)
+First CRAN release. orcidtr reads the ORCID public API (version 3.0) and returns data.table objects:
 
-### Authentication Behavior
+- one function per record section: `orcid_employments()`, `orcid_educations()`, `orcid_distinctions()`, `orcid_invited_positions()`, `orcid_memberships()`, `orcid_qualifications()`, `orcid_services()`, `orcid_research_resources()`, `orcid_works()`, `orcid_funding()`, `orcid_peer_reviews()`, `orcid_person()`, `orcid_bio()`, `orcid_keywords()`, `orcid_researcher_urls()`, `orcid_external_identifiers()`, `orcid_other_names()`, `orcid_address()` and `orcid_email()`;
+- `orcid_activities()` for summaries of every activity section in one request;
+- `orcid_fetch_record()` and `orcid_fetch_many()` for several sections of one record, or one section of several records;
+- `orcid()`, `orcid_search()` and `orcid_doi()` to search the registry;
+- `orcid_ping()` to check that the API is up.
 
-- **IMPORTANT**: The package no longer automatically uses the `ORCID_TOKEN` environment variable for API requests
-- **Reason**: The ORCID public API does NOT require authentication and actually rejects invalid tokens with 401 errors
-- **Impact**: If you previously set `ORCID_TOKEN` and experienced authentication errors, you can now safely unset it
-- **Migration**: If you need authentication (for rate limits or private data), pass the token explicitly: `orcid_works(id, token = "your-token")`
-- Authentication is now truly optional as intended by ORCID's public API design
-
-## Bug Fixes (December 28, 2025)
-
-### API Status Check
-
-- Fixed `orcid_ping()` to use `application/json` instead of `text/plain` Accept header
-- Now properly parses JSON response and returns "OK" when API is healthy
-- Resolves 406 (Not Acceptable) errors from the status endpoint
-
-### Search Results
-
-- Fixed empty search results returning 1 row of NA values instead of 0 rows
-- `orcid_search()` and `orcid()` now correctly return empty data.table with 0 rows when no matches found
-- `attr(result, "found")` still correctly shows 0 for total matches
-
-### Parser Improvements
-
-- Enhanced `parse_search_results()` to handle NA values from `safe_extract()` when JSON contains null
-- Prevents creation of placeholder rows with NA values
-
-## Documentation Improvements (December 28, 2025)
-
-### Clarified Authentication
-
-- Updated README and vignette to explicitly state authentication is **optional**
-- Explained when tokens are actually needed (rate limits, private data access)
-- Provided OAuth2 flow example for users who do need tokens
-- Corrected misconceptions from rorcid documentation about token requirements
-
-### Internal Documentation
-
-- Updated `orcid_request()` documentation to reflect optional authentication
-- Clarified that public API works without any token
-- Improved error messages for authentication failures
-
-## Test Suite (December 28, 2025)
-
-- Removed `ORCID_TOKEN` checks from all test helper functions
-- All 302 tests now pass without requiring any authentication
-- Tests correctly handle both authenticated and unauthenticated scenarios
-
-## Initial Release Features
-
-### Biographical Data Functions
-
-- `orcid_person()`: Fetch complete person/biographical data
-- `orcid_bio()`: Retrieve biography text
-- `orcid_keywords()`: Get researcher keywords
-- `orcid_researcher_urls()`: Fetch researcher URLs
-- `orcid_external_identifiers()`: Get external identifiers (Scopus, ResearcherID, etc.)
-- `orcid_other_names()`: Retrieve alternative names
-- `orcid_address()`: Get address/country information
-- `orcid_email()`: Fetch email addresses (if public)
-
-### Professional Activities Functions
-
-- `orcid_distinctions()`: Fetch distinctions and honors
-- `orcid_invited_positions()`: Get invited positions
-- `orcid_memberships()`: Retrieve professional memberships
-- `orcid_qualifications()`: Fetch qualifications
-- `orcid_services()`: Get service activities
-- `orcid_research_resources()`: Retrieve research resources
-
-### Employment and Education
-
-- `orcid_employments()`: Fetch employment history
-- `orcid_educations()`: Retrieve education records
-
-### Research Outputs
-
-- `orcid_works()`: Get works/publications
-- `orcid_funding()`: Fetch funding records
-- `orcid_peer_reviews()`: Retrieve peer review activities
-
-### Activities Summary
-
-- `orcid_activities()`: Fetch all activities in one call (returns named list of all activity types)
-
-### Search Functions
-
-- `orcid()`: Flexible Solr query search of ORCID registry
-- `orcid_search()`: User-friendly search with named parameters
-- `orcid_doi()`: Search for ORCID records by DOI
-
-### Batch Operations
-
-- `orcid_fetch_record()`: Get complete ORCID record (supports all sections)
-- `orcid_fetch_many()`: Batch fetch for multiple ORCIDs
-
-### Utilities
-
-- `orcid_ping()`: Check ORCID API status
-
-## Technical Details
-
-- Full ORCID API v3.0 support
-- CRAN-compliant implementation
-- Comprehensive test coverage (302 tests) with `skip_on_cran()` guards
-- All functions return data.table objects for efficient data manipulation
-- Complete roxygen2 documentation
-- Built with modern httr2 package for HTTP requests
-- No authentication required for public data access
-- Optional token support for enhanced rate limits
+A token is optional and is never read from the environment, because the public API rejects an invalid token even though it needs none.

@@ -161,11 +161,19 @@ test_that("orcid_fetch_record handles errors gracefully", {
   skip_on_cran()
   skip_if_offline()
 
-  # Should return empty data.table for failed sections
-  result <- orcid_fetch_record("0000-0000-0000-0000")
+  messages <- character()
+  result <- withCallingHandlers(
+    orcid_fetch_record("0000-0000-0000-0000"),
+    warning = function(w) {
+      messages <<- c(messages, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
 
-  # The function should have tried to fetch sections
   expect_type(result, "list")
+  expect_length(messages, 5)
+  expect_true(all(startsWith(messages, "Failed to fetch")))
+  expect_true(all(vapply(result, nrow, integer(1)) == 0))
 })
 
 # ==============================================================================

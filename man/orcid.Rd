@@ -2,22 +2,23 @@
 % Please edit documentation in R/search.R
 \name{orcid}
 \alias{orcid}
-\title{Search ORCID registry}
+\title{Search the ORCID registry with a Solr query}
 \usage{
-orcid(query = NULL, rows = 10, start = 0, token = NULL, ...)
+orcid(query = NULL, rows = 10, start = 0, token = NULL)
 }
 \arguments{
-\item{query}{Character string. Solr query string (e.g., "keyword:ecology",
-"family-name:Smith AND given-names:John"). If NULL, returns empty results.}
+\item{query}{Character string. Solr query, such as \code{"keyword:ecology"} or
+\code{"family-name:Smith AND given-names:John"}. \code{NULL} or \code{""} returns an
+empty result with a warning.}
 
-\item{rows}{Integer. Number of results to return (default: 10, max: 1000).}
+\item{rows}{Integer. Number of results to return, from 1 to 1000. Default 10.}
 
-\item{start}{Integer. Starting position for pagination (default: 0).}
+\item{start}{Integer. Offset of the first result, for pagination. Default 0.}
 
-\item{token}{Character string or NULL. Optional API token. Most searches
-work without authentication.}
-
-\item{...}{Additional parameters passed to the API request.}
+\item{token}{Character string or \code{NULL}. Optional \verb{/read-public} access
+token. The public API needs none: it returns the same public data either
+way, and a token only raises the daily read quota. See the Authentication
+section of \link{orcidtr-package}.}
 }
 \value{
 A data.table with columns:
@@ -25,52 +26,38 @@ A data.table with columns:
 \item{orcid_id}{ORCID identifier}
 \item{given_names}{Given name(s)}
 \item{family_name}{Family name}
-\item{credit_name}{Credit/published name}
-\item{other_names}{Alternative names (list column)}
+\item{credit_name}{Published name}
+\item{other_names}{List column; each element is a character vector of
+alternative names}
 }
-Returns empty data.table if no results found.
-The total number of matches is available as \code{attr(result, "found")}.
+The total number of matches, which can exceed \code{rows}, is in
+\code{attr(result, "found")}. No matches give a zero-row table.
 }
 \description{
-Search for ORCID profiles using Apache Solr query syntax. This function
-provides direct access to the ORCID search API with full query capabilities.
+Sends an Apache Solr query to the ORCID expanded-search endpoint and returns
+the matching iDs with their names.
 }
 \details{
-This function queries the ORCID search endpoint:
-\code{https://pub.orcid.org/v3.0/expanded-search}
+This function queries \code{https://pub.orcid.org/v3.0/expanded-search},
+which returns names alongside each iD.
 
-The expanded-search endpoint returns name information along with ORCID IDs,
-unlike the basic search endpoint which only returns identifiers.
-
-\strong{Query Field Examples:}
-\itemize{
-\item \code{family-name:Smith}
-\item \code{given-names:John}
-\item \code{keyword:ecology}
-\item \code{affiliation-org-name:Harvard}
-\item \code{digital-object-ids:10.1371/*}
-\item \code{email:*@example.org}
-}
-
-\strong{Boolean Operators:}
-Use AND, OR, NOT for complex queries:
-\code{"family-name:Smith AND affiliation-org-name:Harvard"}
+Useful fields include \code{family-name}, \code{given-names}, \code{credit-name},
+\code{other-names}, \code{keyword}, \code{affiliation-org-name}, \code{email} and
+\code{digital-object-ids}. Combine terms with \code{AND}, \code{OR} and \code{NOT}. Put a value
+that contains spaces or a slash in double quotes: Solr reads an unquoted
+second word as a separate term matched against every field, and an
+unquoted \code{/} as the start of a regular expression. A trailing \code{*} inside the
+quotes matches any suffix, so \code{digital-object-ids:"10.1371/*"} finds every
+record with a PLOS DOI.
 }
 \examples{
 \dontrun{
-# Search by keyword
 results <- orcid("keyword:ecology", rows = 20)
-print(results)
-attr(results, "found")  # Total number of matches
+attr(results, "found")
 
-# Search by name
-results <- orcid("family-name:Fabbri AND given-names:Lorenzo")
-
-# Search by affiliation
-results <- orcid("affiliation-org-name:Stanford")
-
-# Search by DOI
-results <- orcid("digital-object-ids:10.1371/*")
+orcid("family-name:Carberry AND given-names:Josiah")
+orcid('affiliation-org-name:"Stanford University"')
+orcid('digital-object-ids:"10.1371/*"')
 
 # Pagination
 page1 <- orcid("keyword:genomics", rows = 10, start = 0)
@@ -79,9 +66,10 @@ page2 <- orcid("keyword:genomics", rows = 10, start = 10)
 
 }
 \references{
-ORCID API Search Documentation: \url{https://info.orcid.org/documentation/api-tutorials/api-tutorial-searching-the-orcid-registry/}
+ORCID search tutorial:
+\url{https://info.orcid.org/documentation/api-tutorials/api-tutorial-searching-the-orcid-registry/}
 }
 \seealso{
-\code{\link{orcid_search}} for a more user-friendly interface,
-\code{\link{orcid_doi}} for DOI-specific searches
+\code{\link[=orcid_search]{orcid_search()}} to build the query from named arguments, \code{\link[=orcid_doi]{orcid_doi()}} to
+search by DOI.
 }

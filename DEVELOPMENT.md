@@ -1,85 +1,27 @@
-# orcidtr: Development Quick Reference
+# Development
 
-## Common R Package Tasks
+## Everyday commands
 
-**Document functions:**
-
-```r
-devtools::document()
-```
-
-**Build README.md from README.Rmd:**
+Run these from the package root in R:
 
 ```r
-devtools::build_readme()
+devtools::load_all()     # load the package
+devtools::document()     # regenerate man/ and NAMESPACE from roxygen
+devtools::test()         # run the tests
+devtools::check()        # R CMD check
+devtools::build_readme() # render README.md from README.Rmd
+lintr::lint_package()    # lint
+altdoc::render_docs()    # build the website in docs/
 ```
 
-**Run all tests:**
+Format R code with `air format .` in the shell. Update local dependencies with `pak::local_install_dev_deps()`; the package has no lockfile, because `DESCRIPTION` and the CI matrix define what it supports.
 
-```r
-devtools::test()
-```
+Most tests call the live ORCID API. They are skipped on CRAN and when offline, so run `devtools::test()` online before a release.
 
-**Check package:**
+## Release
 
-```r
-devtools::check()
-```
-
-**Install package locally:**
-
-```r
-devtools::install()
-```
-
-**Build source tarball:**
-
-```r
-devtools::build()
-```
-
-**Update version:**
-Edit `DESCRIPTION` file, then update `NEWS.md`.
-
-**Tag release:**
-
-```bash
-git tag -a vX.Y.Z -m "Release vX.Y.Z"
-git push origin vX.Y.Z
-```
-
-**Check before commit:**
-
-```r
-devtools::document(); devtools::test(); devtools::check(); devtools::build_readme()
-```
-
-**CRAN submission (summary):**
-
-1. Update version, NEWS.md, cran-comments.md
-2. `devtools::check(cran = TRUE)`
-3. `rhub::check_for_cran()`
-4. `devtools::spell_check()`
-5. `urlchecker::url_check()`
-6. `devtools::build()`
-7. `devtools::submit_cran()`
-
-**Help:**
-
-```r
-?function_name
-```
-
-**Website docs:**
-
-```r
-altdoc::render_docs()
-```
-
-**Install from GitHub:**
-
-```r
-remotes::install_github("lorenzoFabbri/orcidtr")
-```
-
-See README.md for more details.
+1. Set the version in `DESCRIPTION` and add its section to the top of `NEWS.md`.
+2. Run `devtools::document()`, `devtools::build_readme()`, `devtools::check()`, `urlchecker::url_check()` and `devtools::spell_check()`.
+3. Commit, then tag and push: `git tag -a vX.Y.Z -m "orcidtr X.Y.Z"` and `git push origin main vX.Y.Z`.
+4. Create the GitHub release with `gh release create vX.Y.Z --notes-file <notes>`; publishing it rebuilds the website.
+5. For a CRAN release, update `cran-comments.md` and run `devtools::submit_cran()`, which also updates `CRAN-SUBMISSION`.

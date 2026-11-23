@@ -87,7 +87,7 @@ test_that("orcid_search combines multiple parameters", {
 
   result <- orcid_search(
     family_name = "Smith",
-    given_names = "John",
+    given_name = "John",
     rows = 5
   )
 
@@ -134,4 +134,24 @@ test_that("orcid_doi validates DOI parameter", {
     orcid_doi(dois = character(0)),
     "At least one DOI must be provided"
   )
+})
+
+test_that("solr_value quotes values with spaces or slashes", {
+  expect_equal(solr_value("Smith"), "Smith")
+  expect_equal(solr_value("Stanford University"), '"Stanford University"')
+  expect_equal(solr_value("10.1371/*"), '"10.1371/*"')
+  expect_equal(solr_value('"already quoted"'), '"already quoted"')
+  expect_equal(solr_value('say "hi" now'), '"say \\"hi\\" now"')
+  expect_error(solr_value(c("a", "b")), "single character")
+})
+
+test_that("search functions reject misspelled arguments", {
+  expect_error(orcid_search(given_names = "John"), "unused argument")
+  expect_error(orcid("family-name:Smith", fl = "orcid"), "unused argument")
+})
+
+test_that("orcid validates query, rows and start", {
+  expect_error(orcid(c("a", "b")), "single character string")
+  expect_error(orcid("a", rows = 2.5), "whole number")
+  expect_error(orcid("a", start = -1), "non-negative")
 })

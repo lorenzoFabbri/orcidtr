@@ -7,48 +7,42 @@
 #' @title orcidtr: Retrieve Data from the ORCID Public API
 #'
 #' @description
-#' The orcidtr package provides a modern, CRAN-compliant interface to the ORCID
-#' public API. It allows you to retrieve employment history, education records,
-#' publications, funding information, and peer review activities from ORCID
-#' researcher profiles.
+#' orcidtr reads public data from ORCID records through the ORCID public API
+#' (version 3.0) and returns each section as a data.table: affiliations such
+#' as employments and educations, works, funding, peer reviews and
+#' biographical data. It can also search the ORCID registry.
 #'
-#' @section Main Functions:
-#' * `orcid_employments()`: Fetch employment history
-#' * `orcid_educations()`: Fetch education records
-#' * `orcid_works()`: Fetch publications and works
-#' * `orcid_funding()`: Fetch funding records
-#' * `orcid_peer_reviews()`: Fetch peer review activities
-#' * `orcid_fetch_record()`: Fetch complete ORCID record
-#' * `orcid_fetch_many()`: Batch fetch for multiple ORCIDs
+#' @section Main functions:
+#' * [orcid_works()], [orcid_employments()], [orcid_educations()],
+#'   [orcid_funding()] and [orcid_peer_reviews()] fetch one section each.
+#' * [orcid_fetch_record()] fetches several sections of one record.
+#' * [orcid_fetch_many()] fetches one section for many records.
+#' * [orcid()], [orcid_search()] and [orcid_doi()] search the registry.
 #'
 #' @section Authentication:
-#' The public API needs no authentication, and no token is read from the
-#' environment. Pass one explicitly to raise your rate limit or to reach data
-#' you have been granted access to:
+#' The public API needs no authentication, and no function reads a token from
+#' the environment. A `/read-public` token, obtained by registering a public
+#' API client with ORCID, gives access to the same public data; it raises the
+#' daily read quota but not the request rate. Data with limited visibility is
+#' served only by the Member API, which this package does not use. Pass a
+#' token explicitly:
 #'
 #' \code{orcid_works("0000-0002-1825-0097", token = "your-token-here")}
 #'
-#' @section Package Design:
-#' * Uses native pipe (`|>`) operator
-#' * Returns data.table objects
-#' * Fully qualified function calls (no library imports in functions)
-#' * No side effects or global state modifications
-#' * Graceful error handling
-#' * CRAN-compliant
+#' The current limits are on the ORCID API limits page linked below.
 #'
 #' @references
-#' ORCID API Documentation:
+#' ORCID API tutorials:
 #' \url{https://info.orcid.org/documentation/api-tutorials/}
+#'
+#' ORCID API limits:
+#' \url{https://info.orcid.org/ufaqs/what-are-the-api-limits/}
 #'
 #' @examples
 #' \dontrun{
-#' # Fetch works for an ORCID
 #' works <- orcid_works("0000-0002-1825-0097")
-#'
-#' # Fetch complete record
 #' record <- orcid_fetch_record("0000-0002-1825-0097")
 #'
-#' # Batch fetch works for multiple ORCIDs
 #' orcids <- c("0000-0002-1825-0097", "0000-0003-1419-2405")
 #' all_works <- orcid_fetch_many(orcids, section = "works")
 #' }

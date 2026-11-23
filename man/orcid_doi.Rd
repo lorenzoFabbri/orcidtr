@@ -2,51 +2,43 @@
 % Please edit documentation in R/search.R
 \name{orcid_doi}
 \alias{orcid_doi}
-\title{Search ORCID by DOI}
+\title{Search the ORCID registry by DOI}
 \usage{
 orcid_doi(dois, fuzzy = FALSE, rows = 10, token = NULL)
 }
 \arguments{
-\item{dois}{Character vector. One or more DOIs to search for.}
+\item{dois}{Character vector. One or more DOIs.}
 
-\item{fuzzy}{Logical. Use fuzzy matching for DOI search (default: FALSE).
-Fuzzy matching allows partial DOI matches.}
+\item{fuzzy}{Logical. If \code{TRUE}, each DOI is treated as a prefix: a \code{*} is
+appended unless one is already present. Default \code{FALSE}.}
 
-\item{rows}{Integer. Number of results per DOI (default: 10).}
+\item{rows}{Integer. Number of results per DOI. Default 10.}
 
-\item{token}{Character string or NULL. Optional API token.}
+\item{token}{Character string or \code{NULL}. Optional \verb{/read-public} access
+token. The public API needs none: it returns the same public data either
+way, and a token only raises the daily read quota. See the Authentication
+section of \link{orcidtr-package}.}
 }
 \value{
-A named list where each element corresponds to a DOI and contains
-a data.table of search results. If only one DOI is provided, returns
-the data.table directly. Empty data.tables are returned for DOIs with
-no matches.
+For one DOI, a data.table with the same columns as \code{\link[=orcid]{orcid()}}. For
+several, a list of such tables named by DOI. A DOI whose search fails
+gives a zero-row table and a warning.
 }
 \description{
-Search for ORCID profiles associated with specific DOIs. This is a
-convenience wrapper around \code{\link{orcid}} for DOI-based searches.
-}
-\details{
-This function searches the \code{digital-object-ids} field in the ORCID
-registry. When \code{fuzzy = TRUE}, wildcard matching is used to find
-partial DOI matches.
+Finds the ORCID records that list a given DOI among their works.
 }
 \examples{
 \dontrun{
-# Search by single DOI
-results <- orcid_doi("10.1371/journal.pone.0025995")
-print(results)
+orcid_doi("10.1371/journal.pone.0025995")
 
-# Search by multiple DOIs
-dois <- c("10.1038/nature12373", "10.1126/science.1260419")
-results <- orcid_doi(dois)
+results <- orcid_doi(c("10.1038/nature12373", "10.1126/science.1260419"))
 names(results)
 
-# Fuzzy search (partial DOI)
-results <- orcid_doi("10.1371/*", fuzzy = TRUE, rows = 20)
+# Every record with a PLOS ONE DOI
+orcid_doi("10.1371/journal.pone", fuzzy = TRUE, rows = 20)
 }
 
 }
 \seealso{
-\code{\link{orcid}}, \code{\link{orcid_search}}
+\code{\link[=orcid]{orcid()}}, \code{\link[=orcid_search]{orcid_search()}}
 }

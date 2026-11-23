@@ -5,12 +5,7 @@
 #' public API. Returns a structured data.table with education history including
 #' institutions, degrees, departments, and dates.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
-#'   Most public data is accessible without authentication.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -31,9 +26,6 @@
 #' @details
 #' This function queries the ORCID public API endpoint:
 #' \code{https://pub.orcid.org/v3.0/{orcid-id}/educations}
-#'
-#' The function respects ORCID API rate limits and includes appropriate
-#' User-Agent headers identifying the orcidtr package.
 #'
 #' @references
 #' ORCID API Documentation:

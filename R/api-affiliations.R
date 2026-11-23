@@ -4,11 +4,7 @@
 #' Fetches distinction records (awards, honors, recognitions) for an ORCID
 #' identifier. Returns structured data similar to employments and educations.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -62,11 +58,7 @@ orcid_distinctions <- function(orcid_id, token = NULL) {
 #' Fetches invited position records for an ORCID identifier, such as
 #' visiting professorships, guest lectureships, etc.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -119,11 +111,7 @@ orcid_invited_positions <- function(orcid_id, token = NULL) {
 #' Fetches professional membership records for an ORCID identifier, such as
 #' memberships in professional societies, organizations, etc.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -176,11 +164,7 @@ orcid_memberships <- function(orcid_id, token = NULL) {
 #' Fetches professional qualification records for an ORCID identifier, such as
 #' licenses, certifications, etc.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -234,11 +218,7 @@ orcid_qualifications <- function(orcid_id, token = NULL) {
 #' committee memberships, editorial board positions, peer review activities,
 #' etc.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -291,11 +271,7 @@ orcid_services <- function(orcid_id, token = NULL) {
 #' Fetches research resource records for an ORCID identifier, such as
 #' facilities, equipment, databases, collections, etc.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
+#' @inheritParams orcid_works
 #'
 #' @return A data.table with the following columns:
 #'   \describe{

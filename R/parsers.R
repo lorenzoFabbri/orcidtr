@@ -1,83 +1,227 @@
-#' Generic parser for affiliation-group structures
+# Column types of every table the package returns. Empty results use the same
+# columns, so code that filters or binds results never meets a missing column.
+affiliation_columns <- c(
+  orcid = "character",
+  put_code = "character",
+  organization = "character",
+  department = "character",
+  role = "character",
+  start_date = "character",
+  end_date = "character",
+  city = "character",
+  region = "character",
+  country = "character"
+)
+
+works_columns <- c(
+  orcid = "character",
+  put_code = "character",
+  title = "character",
+  type = "character",
+  publication_date = "character",
+  journal = "character",
+  doi = "character",
+  url = "character"
+)
+
+funding_columns <- c(
+  orcid = "character",
+  put_code = "character",
+  title = "character",
+  type = "character",
+  organization = "character",
+  start_date = "character",
+  end_date = "character",
+  amount = "character",
+  currency = "character"
+)
+
+peer_review_columns <- c(
+  orcid = "character",
+  put_code = "character",
+  reviewer_role = "character",
+  review_type = "character",
+  review_completion_date = "character",
+  organization = "character"
+)
+
+research_resource_columns <- c(
+  orcid = "character",
+  put_code = "character",
+  proposal_title = "character",
+  start_date = "character",
+  end_date = "character"
+)
+
+search_columns <- c(
+  orcid_id = "character",
+  given_names = "character",
+  family_name = "character",
+  credit_name = "character",
+  other_names = "list"
+)
+
+
+#' Build an empty data.table with given column types
+#'
+#' @param columns Named character vector mapping column names to types.
+#'
+#' @return data.table with zero rows.
+#' @keywords internal
+#' @noRd
+empty_table <- function(columns) {
+  data.table::as.data.table(lapply(columns, function(type) vector(type, 0)))
+}
+
+
+#' Bind parsed rows, or return the empty table when there are none
+#'
+#' @param rows List of named lists, possibly containing NULL entries.
+#' @param columns Named character vector of column types.
+#'
+#' @return data.table.
+#' @keywords internal
+#' @noRd
+bind_rows_or_empty <- function(rows, columns) {
+  rows <- rows[!vapply(rows, is.null, logical(1))]
+  if (length(rows) == 0) {
+    return(empty_table(columns))
+  }
+  data.table::rbindlist(rows, fill = TRUE)
+}
+
+
+#' Parse an affiliation-group response
 #'
 #' @description
-#' Shared logic for parsing affiliation-based records (employments, educations,
-#' affiliations).
-#' Reduces code duplication across multiple parsers.
+#' Employments, educations, distinctions, invited positions, memberships,
+#' qualifications and services share one structure: a list of
+#' `affiliation-group` entries, each holding `summaries` keyed by type.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
-#' @param summary_key Character string. The summary key to extract (e.g.,
-#'   "employment-summary").
+#' @param summary_key Character vector. Summary keys to look for in each item;
+#'   the first one present is used.
 #'
 #' @return data.table with affiliation records.
 #' @keywords internal
 #' @noRd
 parse_affiliation_group <- function(json_data, orcid_id, summary_key) {
   groups <- safe_extract(json_data, "affiliation-group")
-
-  # Empty structure template
-  empty_structure <- data.table::data.table(
-    orcid = character(0),
-    put_code = character(0),
-    organization = character(0),
-    department = character(0),
-    role = character(0),
-    start_date = character(0),
-    end_date = character(0),
-    city = character(0),
-    region = character(0),
-    country = character(0)
-  )
-
-  if (is.null(groups) || length(groups) == 0) {
-    return(empty_structure)
+  if (is_absent(groups) || !is.list(groups)) {
+    return(empty_table(affiliation_columns))
   }
 
-  # Process each group
-  records <- lapply(groups, function(group) {
+  rows <- lapply(groups, function(group) {
     summaries <- safe_extract(group, "summaries")
-    if (is.null(summaries)) {
+    if (is_absent(summaries) || !is.list(summaries)) {
       return(NULL)
     }
-
     lapply(summaries, function(item) {
-      summary <- safe_extract(item, summary_key)
+      summary <- NULL
+      for (key in summary_key) {
+        candidate <- safe_extract(item, key)
+        if (!is_absent(candidate) && is.list(candidate)) {
+          summary <- candidate
+          break
+        }
+      }
       if (is.null(summary)) {
         return(NULL)
       }
-
       list(
         orcid = orcid_id,
-        put_code = as.character(safe_extract(summary, "put-code")),
-        organization = safe_extract(summary, "organization", "name"),
-        department = safe_extract(summary, "department-name"),
-        role = safe_extract(summary, "role-title"),
+        put_code = extract_chr(summary, "put-code"),
+        organization = extract_chr(summary, "organization", "name"),
+        department = extract_chr(summary, "department-name"),
+        role = extract_chr(summary, "role-title"),
         start_date = orcid_date_to_iso(safe_extract(summary, "start-date")),
         end_date = orcid_date_to_iso(safe_extract(summary, "end-date")),
-        city = safe_extract(summary, "organization", "address", "city"),
-        region = safe_extract(summary, "organization", "address", "region"),
-        country = safe_extract(summary, "organization", "address", "country")
+        city = extract_chr(summary, "organization", "address", "city"),
+        region = extract_chr(summary, "organization", "address", "region"),
+        country = extract_chr(summary, "organization", "address", "country")
       )
     })
   })
 
-  # Flatten and convert to data.table
-  records_flat <- unlist(records, recursive = FALSE)
-  records_flat <- records_flat[!vapply(records_flat, is.null, logical(1))]
+  bind_rows_or_empty(unlist(rows, recursive = FALSE), affiliation_columns)
+}
 
-  if (length(records_flat) == 0) {
-    return(empty_structure)
+
+#' Parse a grouped activity response
+#'
+#' @description
+#' Works, fundings, peer reviews and research resources return a list of
+#' `group` entries, each holding one or more summaries of the same item from
+#' different sources.
+#'
+#' @param json_data List. Parsed JSON response from ORCID API.
+#' @param summary_key Character string. Key of the summary list in each group.
+#' @param row_fn Function taking one summary and returning a named list.
+#' @param columns Named character vector of column types.
+#' @param first_only Logical. Keep only the first summary in each group.
+#'
+#' @return data.table.
+#' @keywords internal
+#' @noRd
+parse_activity_group <- function(
+  json_data,
+  summary_key,
+  row_fn,
+  columns,
+  first_only = FALSE
+) {
+  groups <- safe_extract(json_data, "group")
+  if (is_absent(groups) || !is.list(groups)) {
+    return(empty_table(columns))
   }
 
-  data.table::rbindlist(records_flat, fill = TRUE)
+  rows <- lapply(groups, function(group) {
+    summaries <- safe_extract(group, summary_key)
+    if (is_absent(summaries) || !is.list(summaries)) {
+      return(NULL)
+    }
+    if (first_only) {
+      summaries <- summaries[1]
+    }
+    lapply(summaries, function(summary) {
+      if (is_absent(summary) || !is.list(summary)) {
+        return(NULL)
+      }
+      row_fn(summary)
+    })
+  })
+
+  bind_rows_or_empty(unlist(rows, recursive = FALSE), columns)
+}
+
+
+#' Parse a flat list of person items
+#'
+#' @param json_data List. Parsed JSON response from ORCID API.
+#' @param key Character string. Key of the item list.
+#' @param row_fn Function taking one item and returning a named list.
+#' @param columns Named character vector of column types.
+#'
+#' @return data.table.
+#' @keywords internal
+#' @noRd
+parse_item_list <- function(json_data, key, row_fn, columns) {
+  items <- safe_extract(json_data, key)
+  if (is_absent(items) || !is.list(items)) {
+    return(empty_table(columns))
+  }
+  rows <- lapply(items, function(item) {
+    if (is_absent(item) || !is.list(item)) {
+      return(NULL)
+    }
+    row_fn(item)
+  })
+  bind_rows_or_empty(rows, columns)
 }
 
 
 #' Parse employment records from ORCID API
-#'
-#' @description
-#' Converts employment JSON response to normalized data.table.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
@@ -92,9 +236,6 @@ parse_employments <- function(json_data, orcid_id) {
 
 #' Parse education records from ORCID API
 #'
-#' @description
-#' Converts education JSON response to normalized data.table.
-#'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
 #'
@@ -106,259 +247,8 @@ parse_educations <- function(json_data, orcid_id) {
 }
 
 
-#' Parse works (publications) from ORCID API
-#'
-#' @description
-#' Converts works JSON response to normalized data.table.
-#'
-#' @param json_data List. Parsed JSON response from ORCID API.
-#' @param orcid_id Character string. ORCID identifier (for reference).
-#'
-#' @return data.table with work records.
-#' @keywords internal
-#' @noRd
-parse_works <- function(json_data, orcid_id) {
-  groups <- safe_extract(json_data, "group")
-
-  if (is.null(groups) || length(groups) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      title = character(0),
-      type = character(0),
-      publication_date = character(0),
-      journal = character(0),
-      doi = character(0),
-      url = character(0)
-    ))
-  }
-
-  records <- lapply(groups, function(group) {
-    summaries <- safe_extract(group, "work-summary")
-    if (is.null(summaries) || length(summaries) == 0) {
-      return(NULL)
-    }
-
-    # Only take the first work-summary to avoid duplicates
-    # Multiple work-summaries in a group represent the same work from different
-    # sources
-    summary <- summaries[[1]]
-
-    if (is.null(summary)) {
-      return(NULL)
-    }
-
-    # Extract title
-    title <- safe_extract(summary, "title", "title", "value")
-
-    # Extract DOI from external IDs
-    doi <- NA_character_
-    ext_ids <- safe_extract(summary, "external-ids", "external-id")
-    if (!is.null(ext_ids) && is.list(ext_ids)) {
-      for (ext_id in ext_ids) {
-        if (
-          !is.null(ext_id) &&
-            identical(safe_extract(ext_id, "external-id-type"), "doi")
-        ) {
-          doi <- safe_extract(ext_id, "external-id-value")
-          break
-        }
-      }
-    }
-
-    # Extract URL
-    url <- safe_extract(summary, "url", "value")
-
-    list(
-      orcid = orcid_id,
-      put_code = as.character(safe_extract(summary, "put-code")),
-      title = title,
-      type = safe_extract(summary, "type"),
-      publication_date = orcid_date_to_iso(safe_extract(
-        summary,
-        "publication-date"
-      )),
-      journal = safe_extract(summary, "journal-title", "value"),
-      doi = doi,
-      url = url
-    )
-  })
-
-  records_flat <- records[!vapply(records, is.null, logical(1))]
-
-  if (length(records_flat) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      title = character(0),
-      type = character(0),
-      publication_date = character(0),
-      journal = character(0),
-      doi = character(0),
-      url = character(0)
-    ))
-  }
-
-  data.table::rbindlist(records_flat, fill = TRUE)
-}
-
-
-#' Parse funding records from ORCID API
-#'
-#' @description
-#' Converts funding JSON response to normalized data.table.
-#'
-#' @param json_data List. Parsed JSON response from ORCID API.
-#' @param orcid_id Character string. ORCID identifier (for reference).
-#'
-#' @return data.table with funding records.
-#' @keywords internal
-#' @noRd
-parse_funding <- function(json_data, orcid_id) {
-  groups <- safe_extract(json_data, "group")
-
-  if (is.null(groups) || length(groups) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      title = character(0),
-      type = character(0),
-      organization = character(0),
-      start_date = character(0),
-      end_date = character(0),
-      amount = character(0),
-      currency = character(0)
-    ))
-  }
-
-  records <- lapply(groups, function(group) {
-    summaries <- safe_extract(group, "funding-summary")
-    if (is.null(summaries)) {
-      return(NULL)
-    }
-
-    lapply(summaries, function(summary) {
-      if (is.null(summary)) {
-        return(NULL)
-      }
-
-      # Extract amount info
-      amount <- NA_character_
-      currency <- NA_character_
-      amount_obj <- safe_extract(summary, "amount")
-      if (!is.null(amount_obj) && is.list(amount_obj)) {
-        amount <- safe_extract(amount_obj, "value")
-        currency <- safe_extract(amount_obj, "currency-code")
-      }
-
-      list(
-        orcid = orcid_id,
-        put_code = as.character(safe_extract(summary, "put-code")),
-        title = safe_extract(summary, "title", "title", "value"),
-        type = safe_extract(summary, "type"),
-        organization = safe_extract(summary, "organization", "name"),
-        start_date = orcid_date_to_iso(safe_extract(summary, "start-date")),
-        end_date = orcid_date_to_iso(safe_extract(summary, "end-date")),
-        amount = amount,
-        currency = currency
-      )
-    })
-  })
-
-  records_flat <- unlist(records, recursive = FALSE)
-  records_flat <- records_flat[!vapply(records_flat, is.null, logical(1))]
-
-  if (length(records_flat) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      title = character(0),
-      type = character(0),
-      organization = character(0),
-      start_date = character(0),
-      end_date = character(0),
-      amount = character(0),
-      currency = character(0)
-    ))
-  }
-
-  data.table::rbindlist(records_flat, fill = TRUE)
-}
-
-
-#' Parse peer review records from ORCID API
-#'
-#' @description
-#' Converts peer review JSON response to normalized data.table.
-#'
-#' @param json_data List. Parsed JSON response from ORCID API.
-#' @param orcid_id Character string. ORCID identifier (for reference).
-#'
-#' @return data.table with peer review records.
-#' @keywords internal
-#' @noRd
-parse_peer_reviews <- function(json_data, orcid_id) {
-  groups <- safe_extract(json_data, "group")
-
-  if (is.null(groups) || length(groups) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      reviewer_role = character(0),
-      review_type = character(0),
-      review_completion_date = character(0),
-      organization = character(0)
-    ))
-  }
-
-  records <- lapply(groups, function(group) {
-    summaries <- safe_extract(group, "peer-review-summary")
-    if (is.null(summaries)) {
-      return(NULL)
-    }
-
-    lapply(summaries, function(summary) {
-      if (is.null(summary)) {
-        return(NULL)
-      }
-
-      list(
-        orcid = orcid_id,
-        put_code = as.character(safe_extract(summary, "put-code")),
-        reviewer_role = safe_extract(summary, "reviewer-role"),
-        review_type = safe_extract(summary, "review-type"),
-        review_completion_date = orcid_date_to_iso(
-          safe_extract(summary, "completion-date")
-        ),
-        organization = safe_extract(summary, "convening-organization", "name")
-      )
-    })
-  })
-
-  records_flat <- unlist(records, recursive = FALSE)
-  records_flat <- records_flat[!vapply(records_flat, is.null, logical(1))]
-
-  if (length(records_flat) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      reviewer_role = character(0),
-      review_type = character(0),
-      review_completion_date = character(0),
-      organization = character(0)
-    ))
-  }
-
-  data.table::rbindlist(records_flat, fill = TRUE)
-}
-
-
-#' Parse affiliations (distinctions, invited positions, memberships, etc.)
-#'
-#' @description
-#' Converts affiliation JSON response to normalized data.table.
-#' Used for distinctions, invited-positions, memberships, qualifications,
-#' services.
+#' Parse distinctions, invited positions, memberships, qualifications or
+#' services from ORCID API
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
@@ -367,94 +257,126 @@ parse_peer_reviews <- function(json_data, orcid_id) {
 #' @keywords internal
 #' @noRd
 parse_affiliations <- function(json_data, orcid_id) {
-  groups <- safe_extract(json_data, "affiliation-group")
+  parse_affiliation_group(
+    json_data,
+    orcid_id,
+    c(
+      "distinction-summary",
+      "invited-position-summary",
+      "membership-summary",
+      "qualification-summary",
+      "service-summary"
+    )
+  )
+}
 
-  # Check if groups is NA (not just NULL)
-  if (
-    is.null(groups) ||
-      length(groups) == 0 ||
-      (length(groups) == 1 && is.na(groups))
-  ) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      organization = character(0),
-      department = character(0),
-      role = character(0),
-      start_date = character(0),
-      end_date = character(0),
-      city = character(0),
-      region = character(0),
-      country = character(0)
-    ))
-  }
 
-  records <- lapply(groups, function(group) {
-    summaries <- safe_extract(group, "summaries")
-    if (is.null(summaries) || (length(summaries) == 1 && is.na(summaries))) {
-      return(NULL)
-    }
-
-    lapply(summaries, function(item) {
-      # Try different summary types
-      summary <- safe_extract(item, "distinction-summary")
-      if (is.null(summary) || (length(summary) == 1 && is.na(summary))) {
-        summary <- safe_extract(item, "invited-position-summary")
+#' Parse works (publications) from ORCID API
+#'
+#' @description
+#' Keeps the first `work-summary` of each group: the others describe the same
+#' work as reported by other sources.
+#'
+#' @param json_data List. Parsed JSON response from ORCID API.
+#' @param orcid_id Character string. ORCID identifier (for reference).
+#'
+#' @return data.table with work records.
+#' @keywords internal
+#' @noRd
+parse_works <- function(json_data, orcid_id) {
+  parse_activity_group(
+    json_data,
+    "work-summary",
+    function(summary) {
+      doi <- NA_character_
+      ext_ids <- safe_extract(summary, "external-ids", "external-id")
+      if (!is_absent(ext_ids) && is.list(ext_ids)) {
+        for (ext_id in ext_ids) {
+          if (identical(extract_chr(ext_id, "external-id-type"), "doi")) {
+            doi <- extract_chr(ext_id, "external-id-value")
+            break
+          }
+        }
       }
-      if (is.null(summary) || (length(summary) == 1 && is.na(summary))) {
-        summary <- safe_extract(item, "membership-summary")
-      }
-      if (is.null(summary) || (length(summary) == 1 && is.na(summary))) {
-        summary <- safe_extract(item, "qualification-summary")
-      }
-      if (is.null(summary) || (length(summary) == 1 && is.na(summary))) {
-        summary <- safe_extract(item, "service-summary")
-      }
-      if (is.null(summary) || (length(summary) == 1 && is.na(summary))) {
-        return(NULL)
-      }
-
       list(
         orcid = orcid_id,
-        put_code = as.character(safe_extract(summary, "put-code")),
-        organization = safe_extract(summary, "organization", "name"),
-        department = safe_extract(summary, "department-name"),
-        role = safe_extract(summary, "role-title"),
+        put_code = extract_chr(summary, "put-code"),
+        title = extract_chr(summary, "title", "title", "value"),
+        type = extract_chr(summary, "type"),
+        publication_date = orcid_date_to_iso(
+          safe_extract(summary, "publication-date")
+        ),
+        journal = extract_chr(summary, "journal-title", "value"),
+        doi = doi,
+        url = extract_chr(summary, "url", "value")
+      )
+    },
+    works_columns,
+    first_only = TRUE
+  )
+}
+
+
+#' Parse funding records from ORCID API
+#'
+#' @param json_data List. Parsed JSON response from ORCID API.
+#' @param orcid_id Character string. ORCID identifier (for reference).
+#'
+#' @return data.table with funding records.
+#' @keywords internal
+#' @noRd
+parse_funding <- function(json_data, orcid_id) {
+  parse_activity_group(
+    json_data,
+    "funding-summary",
+    function(summary) {
+      list(
+        orcid = orcid_id,
+        put_code = extract_chr(summary, "put-code"),
+        title = extract_chr(summary, "title", "title", "value"),
+        type = extract_chr(summary, "type"),
+        organization = extract_chr(summary, "organization", "name"),
         start_date = orcid_date_to_iso(safe_extract(summary, "start-date")),
         end_date = orcid_date_to_iso(safe_extract(summary, "end-date")),
-        city = safe_extract(summary, "organization", "address", "city"),
-        region = safe_extract(summary, "organization", "address", "region"),
-        country = safe_extract(summary, "organization", "address", "country")
+        amount = extract_chr(summary, "amount", "value"),
+        currency = extract_chr(summary, "amount", "currency-code")
       )
-    })
-  })
+    },
+    funding_columns
+  )
+}
 
-  records_flat <- unlist(records, recursive = FALSE)
-  records_flat <- records_flat[!vapply(records_flat, is.null, logical(1))]
 
-  if (length(records_flat) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      organization = character(0),
-      department = character(0),
-      role = character(0),
-      start_date = character(0),
-      end_date = character(0),
-      city = character(0),
-      region = character(0),
-      country = character(0)
-    ))
-  }
-
-  data.table::rbindlist(records_flat, fill = TRUE)
+#' Parse peer review records from ORCID API
+#'
+#' @param json_data List. Parsed JSON response from ORCID API.
+#' @param orcid_id Character string. ORCID identifier (for reference).
+#'
+#' @return data.table with peer review records.
+#' @keywords internal
+#' @noRd
+parse_peer_reviews <- function(json_data, orcid_id) {
+  parse_activity_group(
+    json_data,
+    "peer-review-summary",
+    function(summary) {
+      list(
+        orcid = orcid_id,
+        put_code = extract_chr(summary, "put-code"),
+        reviewer_role = extract_chr(summary, "reviewer-role"),
+        review_type = extract_chr(summary, "review-type"),
+        review_completion_date = orcid_date_to_iso(
+          safe_extract(summary, "completion-date")
+        ),
+        organization = extract_chr(summary, "convening-organization", "name")
+      )
+    },
+    peer_review_columns
+  )
 }
 
 
 #' Parse research resources from ORCID API
-#'
-#' @description
-#' Converts research resources JSON response to normalized data.table.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
@@ -463,33 +385,14 @@ parse_affiliations <- function(json_data, orcid_id) {
 #' @keywords internal
 #' @noRd
 parse_research_resources <- function(json_data, orcid_id) {
-  groups <- safe_extract(json_data, "group")
-
-  if (is.null(groups) || length(groups) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      proposal_title = character(0),
-      start_date = character(0),
-      end_date = character(0)
-    ))
-  }
-
-  records <- lapply(groups, function(group) {
-    summaries <- safe_extract(group, "research-resource-summary")
-    if (is.null(summaries)) {
-      return(NULL)
-    }
-
-    lapply(summaries, function(summary) {
-      if (is.null(summary)) {
-        return(NULL)
-      }
-
+  parse_activity_group(
+    json_data,
+    "research-resource-summary",
+    function(summary) {
       list(
         orcid = orcid_id,
-        put_code = as.character(safe_extract(summary, "put-code")),
-        proposal_title = safe_extract(
+        put_code = extract_chr(summary, "put-code"),
+        proposal_title = extract_chr(
           summary,
           "proposal",
           "title",
@@ -499,84 +402,64 @@ parse_research_resources <- function(json_data, orcid_id) {
         start_date = orcid_date_to_iso(safe_extract(summary, "start-date")),
         end_date = orcid_date_to_iso(safe_extract(summary, "end-date"))
       )
-    })
-  })
+    },
+    research_resource_columns
+  )
+}
 
-  records_flat <- unlist(records, recursive = FALSE)
-  records_flat <- records_flat[!vapply(records_flat, is.null, logical(1))]
 
-  if (length(records_flat) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      proposal_title = character(0),
-      start_date = character(0),
-      end_date = character(0)
-    ))
+#' Collapse one field of a list of items into a comma-separated string
+#'
+#' @param items List of items, or a missing value.
+#' @param ... Character strings. Path to the field within each item.
+#'
+#' @return Character scalar, `NA` when no item has the field.
+#' @keywords internal
+#' @noRd
+collapse_field <- function(items, ...) {
+  if (is_absent(items) || !is.list(items)) {
+    return(NA_character_)
   }
-
-  data.table::rbindlist(records_flat, fill = TRUE)
+  values <- vapply(items, function(item) extract_chr(item, ...), character(1))
+  values <- values[!is.na(values)]
+  if (length(values) == 0) {
+    return(NA_character_)
+  }
+  paste(values, collapse = ", ")
 }
 
 
 #' Parse person/biographical data from ORCID API
 #'
-#' @description
-#' Converts person endpoint JSON response to normalized data.table.
-#'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
 #'
-#' @return data.table with person data.
+#' @return One-row data.table with person data.
 #' @keywords internal
 #' @noRd
 parse_person <- function(json_data, orcid_id) {
-  # Extract name
-  name <- safe_extract(json_data, "name")
-  given_names <- safe_extract(name, "given-names", "value")
-  family_name <- safe_extract(name, "family-name", "value")
-  credit_name <- safe_extract(name, "credit-name", "value")
-
-  # Extract biography
-  biography <- safe_extract(json_data, "biography", "content")
-
-  # Extract keywords
-  keywords_list <- safe_extract(json_data, "keywords", "keyword")
-  keywords <- NA_character_
-  if (!is.null(keywords_list) && length(keywords_list) > 0) {
-    kw <- sapply(keywords_list, function(kw) safe_extract(kw, "content"))
-    kw <- kw[!is.na(kw)]
-    if (length(kw) > 0) {
-      keywords <- paste(kw, collapse = ", ")
-    }
-  }
-
-  # Extract researcher URLs
-  urls_list <- safe_extract(json_data, "researcher-urls", "researcher-url")
-  urls <- NA_character_
-  if (!is.null(urls_list) && length(urls_list) > 0) {
-    url_values <- sapply(urls_list, function(u) safe_extract(u, "url", "value"))
-    url_values <- url_values[!is.na(url_values)]
-    if (length(url_values) > 0) {
-      urls <- paste(url_values, collapse = ", ")
-    }
-  }
-
-  # Extract country
   addresses <- safe_extract(json_data, "addresses", "address")
-  country <- NA_character_
-  if (!is.null(addresses) && length(addresses) > 0) {
-    country <- safe_extract(addresses[[1]], "country", "value")
+  country <- if (!is_absent(addresses) && is.list(addresses)) {
+    extract_chr(addresses[[1]], "country", "value")
+  } else {
+    NA_character_
   }
 
   data.table::data.table(
     orcid = orcid_id,
-    given_names = given_names,
-    family_name = family_name,
-    credit_name = credit_name,
-    biography = biography,
-    keywords = keywords,
-    researcher_urls = urls,
+    given_names = extract_chr(json_data, "name", "given-names", "value"),
+    family_name = extract_chr(json_data, "name", "family-name", "value"),
+    credit_name = extract_chr(json_data, "name", "credit-name", "value"),
+    biography = extract_chr(json_data, "biography", "content"),
+    keywords = collapse_field(
+      safe_extract(json_data, "keywords", "keyword"),
+      "content"
+    ),
+    researcher_urls = collapse_field(
+      safe_extract(json_data, "researcher-urls", "researcher-url"),
+      "url",
+      "value"
+    ),
     country = country
   )
 }
@@ -584,31 +467,22 @@ parse_person <- function(json_data, orcid_id) {
 
 #' Parse biography from ORCID API
 #'
-#' @description
-#' Converts biography endpoint JSON response to normalized data.table.
-#'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
 #'
-#' @return data.table with biography data.
+#' @return One-row data.table with biography data.
 #' @keywords internal
 #' @noRd
 parse_bio <- function(json_data, orcid_id) {
-  biography <- safe_extract(json_data, "content")
-  visibility <- safe_extract(json_data, "visibility")
-
   data.table::data.table(
     orcid = orcid_id,
-    biography = biography,
-    visibility = visibility
+    biography = extract_chr(json_data, "content"),
+    visibility = extract_chr(json_data, "visibility")
   )
 }
 
 
 #' Parse keywords from ORCID API
-#'
-#' @description
-#' Converts keywords endpoint JSON response to normalized data.table.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
@@ -617,32 +491,22 @@ parse_bio <- function(json_data, orcid_id) {
 #' @keywords internal
 #' @noRd
 parse_keywords <- function(json_data, orcid_id) {
-  keywords_list <- safe_extract(json_data, "keyword")
-
-  if (is.null(keywords_list) || length(keywords_list) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      keyword = character(0)
-    ))
-  }
-
-  records <- lapply(keywords_list, function(kw) {
-    list(
-      orcid = orcid_id,
-      put_code = as.character(safe_extract(kw, "put-code")),
-      keyword = safe_extract(kw, "content")
-    )
-  })
-
-  data.table::rbindlist(records, fill = TRUE)
+  parse_item_list(
+    json_data,
+    "keyword",
+    function(item) {
+      list(
+        orcid = orcid_id,
+        put_code = extract_chr(item, "put-code"),
+        keyword = extract_chr(item, "content")
+      )
+    },
+    c(orcid = "character", put_code = "character", keyword = "character")
+  )
 }
 
 
 #' Parse researcher URLs from ORCID API
-#'
-#' @description
-#' Converts researcher-urls endpoint JSON response to normalized data.table.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
@@ -651,35 +515,28 @@ parse_keywords <- function(json_data, orcid_id) {
 #' @keywords internal
 #' @noRd
 parse_researcher_urls <- function(json_data, orcid_id) {
-  urls_list <- safe_extract(json_data, "researcher-url")
-
-  if (is.null(urls_list) || length(urls_list) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      url_name = character(0),
-      url_value = character(0)
-    ))
-  }
-
-  records <- lapply(urls_list, function(url) {
-    list(
-      orcid = orcid_id,
-      put_code = as.character(safe_extract(url, "put-code")),
-      url_name = safe_extract(url, "url-name"),
-      url_value = safe_extract(url, "url", "value")
+  parse_item_list(
+    json_data,
+    "researcher-url",
+    function(item) {
+      list(
+        orcid = orcid_id,
+        put_code = extract_chr(item, "put-code"),
+        url_name = extract_chr(item, "url-name"),
+        url_value = extract_chr(item, "url", "value")
+      )
+    },
+    c(
+      orcid = "character",
+      put_code = "character",
+      url_name = "character",
+      url_value = "character"
     )
-  })
-
-  data.table::rbindlist(records, fill = TRUE)
+  )
 }
 
 
 #' Parse external identifiers from ORCID API
-#'
-#' @description
-#' Converts external-identifiers endpoint JSON response to normalized
-#' data.table.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
@@ -688,36 +545,30 @@ parse_researcher_urls <- function(json_data, orcid_id) {
 #' @keywords internal
 #' @noRd
 parse_external_identifiers <- function(json_data, orcid_id) {
-  ids_list <- safe_extract(json_data, "external-identifier")
-
-  if (is.null(ids_list) || length(ids_list) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      external_id_type = character(0),
-      external_id_value = character(0),
-      external_id_url = character(0)
-    ))
-  }
-
-  records <- lapply(ids_list, function(ext_id) {
-    list(
-      orcid = orcid_id,
-      put_code = as.character(safe_extract(ext_id, "put-code")),
-      external_id_type = safe_extract(ext_id, "external-id-type"),
-      external_id_value = safe_extract(ext_id, "external-id-value"),
-      external_id_url = safe_extract(ext_id, "external-id-url", "value")
+  parse_item_list(
+    json_data,
+    "external-identifier",
+    function(item) {
+      list(
+        orcid = orcid_id,
+        put_code = extract_chr(item, "put-code"),
+        external_id_type = extract_chr(item, "external-id-type"),
+        external_id_value = extract_chr(item, "external-id-value"),
+        external_id_url = extract_chr(item, "external-id-url", "value")
+      )
+    },
+    c(
+      orcid = "character",
+      put_code = "character",
+      external_id_type = "character",
+      external_id_value = "character",
+      external_id_url = "character"
     )
-  })
-
-  data.table::rbindlist(records, fill = TRUE)
+  )
 }
 
 
 #' Parse other names from ORCID API
-#'
-#' @description
-#' Converts other-names endpoint JSON response to normalized data.table.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
@@ -726,32 +577,22 @@ parse_external_identifiers <- function(json_data, orcid_id) {
 #' @keywords internal
 #' @noRd
 parse_other_names <- function(json_data, orcid_id) {
-  names_list <- safe_extract(json_data, "other-name")
-
-  if (is.null(names_list) || length(names_list) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      other_name = character(0)
-    ))
-  }
-
-  records <- lapply(names_list, function(name) {
-    list(
-      orcid = orcid_id,
-      put_code = as.character(safe_extract(name, "put-code")),
-      other_name = safe_extract(name, "content")
-    )
-  })
-
-  data.table::rbindlist(records, fill = TRUE)
+  parse_item_list(
+    json_data,
+    "other-name",
+    function(item) {
+      list(
+        orcid = orcid_id,
+        put_code = extract_chr(item, "put-code"),
+        other_name = extract_chr(item, "content")
+      )
+    },
+    c(orcid = "character", put_code = "character", other_name = "character")
+  )
 }
 
 
 #' Parse address from ORCID API
-#'
-#' @description
-#' Converts address endpoint JSON response to normalized data.table.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
@@ -760,32 +601,22 @@ parse_other_names <- function(json_data, orcid_id) {
 #' @keywords internal
 #' @noRd
 parse_address <- function(json_data, orcid_id) {
-  addresses <- safe_extract(json_data, "address")
-
-  if (is.null(addresses) || length(addresses) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      put_code = character(0),
-      country = character(0)
-    ))
-  }
-
-  records <- lapply(addresses, function(addr) {
-    list(
-      orcid = orcid_id,
-      put_code = as.character(safe_extract(addr, "put-code")),
-      country = safe_extract(addr, "country", "value")
-    )
-  })
-
-  data.table::rbindlist(records, fill = TRUE)
+  parse_item_list(
+    json_data,
+    "address",
+    function(item) {
+      list(
+        orcid = orcid_id,
+        put_code = extract_chr(item, "put-code"),
+        country = extract_chr(item, "country", "value")
+      )
+    },
+    c(orcid = "character", put_code = "character", country = "character")
+  )
 }
 
 
 #' Parse email from ORCID API
-#'
-#' @description
-#' Converts email endpoint JSON response to normalized data.table.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
@@ -794,132 +625,74 @@ parse_address <- function(json_data, orcid_id) {
 #' @keywords internal
 #' @noRd
 parse_email <- function(json_data, orcid_id) {
-  emails <- safe_extract(json_data, "email")
-
-  if (is.null(emails) || length(emails) == 0) {
-    return(data.table::data.table(
-      orcid = character(0),
-      email = character(0),
-      verified = logical(0),
-      primary = logical(0)
-    ))
-  }
-
-  records <- lapply(emails, function(email) {
-    list(
-      orcid = orcid_id,
-      email = safe_extract(email, "email"),
-      verified = isTRUE(safe_extract(email, "verified")),
-      primary = isTRUE(safe_extract(email, "primary"))
+  parse_item_list(
+    json_data,
+    "email",
+    function(item) {
+      list(
+        orcid = orcid_id,
+        email = extract_chr(item, "email"),
+        verified = isTRUE(safe_extract(item, "verified")),
+        primary = isTRUE(safe_extract(item, "primary"))
+      )
+    },
+    c(
+      orcid = "character",
+      email = "character",
+      verified = "logical",
+      primary = "logical"
     )
-  })
-
-  data.table::rbindlist(records, fill = TRUE)
+  )
 }
 
 
 #' Parse activities summary from ORCID API
 #'
 #' @description
-#' Converts activities endpoint JSON response to normalized named list.
+#' Applies the section parsers to each part of the `/activities` response. A
+#' section missing from the response yields that section's empty table.
 #'
 #' @param json_data List. Parsed JSON response from ORCID API.
 #' @param orcid_id Character string. ORCID identifier (for reference).
 #'
-#' @return Named list with data.table for each activity type.
+#' @return Named list with a data.table for each activity type.
 #' @keywords internal
 #' @noRd
 parse_activities <- function(json_data, orcid_id) {
-  result <- list()
+  sections <- list(
+    distinctions = list("distinctions", parse_affiliations),
+    educations = list("educations", parse_educations),
+    employments = list("employments", parse_employments),
+    invited_positions = list("invited-positions", parse_affiliations),
+    memberships = list("memberships", parse_affiliations),
+    qualifications = list("qualifications", parse_affiliations),
+    services = list("services", parse_affiliations),
+    fundings = list("fundings", parse_funding),
+    peer_reviews = list("peer-reviews", parse_peer_reviews),
+    research_resources = list("research-resources", parse_research_resources),
+    works = list("works", parse_works)
+  )
 
-  # Parse distinctions
-  distinctions_data <- safe_extract(json_data, "distinctions")
-  result$distinctions <- if (!is.null(distinctions_data)) {
-    parse_affiliations(distinctions_data, orcid_id)
-  } else {
-    data.table::data.table()
-  }
+  lapply(sections, function(section) {
+    section_data <- safe_extract(json_data, section[[1]])
+    if (!is.list(section_data)) {
+      section_data <- list()
+    }
+    section[[2]](section_data, orcid_id)
+  })
+}
 
-  # Parse educations
-  educations_data <- safe_extract(json_data, "educations")
-  result$educations <- if (!is.null(educations_data)) {
-    parse_educations(educations_data, orcid_id)
-  } else {
-    data.table::data.table()
-  }
 
-  # Parse employments
-  employments_data <- safe_extract(json_data, "employments")
-  result$employments <- if (!is.null(employments_data)) {
-    parse_employments(employments_data, orcid_id)
-  } else {
-    data.table::data.table()
-  }
-
-  # Parse invited positions
-  invited_data <- safe_extract(json_data, "invited-positions")
-  result$invited_positions <- if (!is.null(invited_data)) {
-    parse_affiliations(invited_data, orcid_id)
-  } else {
-    data.table::data.table()
-  }
-
-  # Parse memberships
-  memberships_data <- safe_extract(json_data, "memberships")
-  result$memberships <- if (!is.null(memberships_data)) {
-    parse_affiliations(memberships_data, orcid_id)
-  } else {
-    data.table::data.table()
-  }
-
-  # Parse qualifications
-  qualifications_data <- safe_extract(json_data, "qualifications")
-  result$qualifications <- if (!is.null(qualifications_data)) {
-    parse_affiliations(qualifications_data, orcid_id)
-  } else {
-    data.table::data.table()
-  }
-
-  # Parse services
-  services_data <- safe_extract(json_data, "services")
-  result$services <- if (!is.null(services_data)) {
-    parse_affiliations(services_data, orcid_id)
-  } else {
-    data.table::data.table()
-  }
-
-  # Parse fundings
-  fundings_data <- safe_extract(json_data, "fundings")
-  result$fundings <- if (!is.null(fundings_data)) {
-    parse_funding(fundings_data, orcid_id)
-  } else {
-    data.table::data.table()
-  }
-
-  # Parse peer reviews
-  peer_reviews_data <- safe_extract(json_data, "peer-reviews")
-  result$peer_reviews <- if (!is.null(peer_reviews_data)) {
-    parse_peer_reviews(peer_reviews_data, orcid_id)
-  } else {
-    data.table::data.table()
-  }
-
-  # Parse research resources
-  resources_data <- safe_extract(json_data, "research-resources")
-  result$research_resources <- if (!is.null(resources_data)) {
-    parse_research_resources(resources_data, orcid_id)
-  } else {
-    data.table::data.table()
-  }
-
-  # Parse works
-  works_data <- safe_extract(json_data, "works")
-  result$works <- if (!is.null(works_data)) {
-    parse_works(works_data, orcid_id)
-  } else {
-    data.table::data.table()
-  }
-
+#' Build an empty search result
+#'
+#' @param found Integer. Total number of matches to record.
+#'
+#' @return Zero-row data.table with a `found` attribute.
+#' @keywords internal
+#' @noRd
+empty_search_result <- function(found = 0L) {
+  result <- empty_table(search_columns)
+  attr(result, "found") <- as.integer(found)
   result
 }
 
@@ -927,122 +700,75 @@ parse_activities <- function(json_data, orcid_id) {
 #' Parse search results from ORCID API
 #'
 #' @description
-#' Converts search endpoint JSON response to normalized data.table.
+#' Reads the `expanded-result` list returned by `/expanded-search`, falling
+#' back to the `result` list of the basic `/search` endpoint.
 #'
 #' @param json_data List. Parsed JSON response from ORCID search API.
 #'
-#' @return data.table with search results columns:
-#'   orcid_id, given_names, family_name, credit_name, other_names.
-#'   The 'found' attribute contains the total number of matches.
+#' @return data.table with columns orcid_id, given_names, family_name,
+#'   credit_name and other_names. The `found` attribute holds the total number
+#'   of matches.
 #' @keywords internal
 #' @noRd
 parse_search_results <- function(json_data) {
-  # Extract total number of results
   num_found <- safe_extract(json_data, "num-found")
-  if (is.null(num_found)) {
+  if (is_absent(num_found)) {
     num_found <- 0L
   }
 
-  # Extract results array - use expanded-result for v3.0 API
   results <- safe_extract(json_data, "expanded-result")
-
-  # Fall back to "result" if expanded-result doesn't exist (older API versions)
-  if (is.null(results) || (length(results) == 1 && is.na(results))) {
+  if (is_absent(results)) {
     results <- safe_extract(json_data, "result")
   }
-
-  # Handle empty results (safe_extract returns NA for null)
-  if (
-    is.null(results) ||
-      length(results) == 0 ||
-      (length(results) == 1 && is.na(results))
-  ) {
-    result <- data.table::data.table(
-      orcid_id = character(0),
-      given_names = character(0),
-      family_name = character(0),
-      credit_name = character(0),
-      other_names = list()
-    )
-    attr(result, "found") <- as.integer(num_found)
-    return(result)
+  if (is_absent(results) || !is.list(results)) {
+    return(empty_search_result(num_found))
   }
 
-  # Parse each result
-  parsed <- lapply(results, function(item) {
-    # Extract ORCID identifier - handle both formats
-    orcid_path <- safe_extract(item, "orcid-identifier", "path")
-    if (is.null(orcid_path) || is.na(orcid_path)) {
-      # Try direct orcid-id field (expanded-search format)
-      orcid_path <- item[["orcid-id"]]
+  # A name field arrives as a string, or as a list whose first non-empty
+  # element is the value.
+  first_value <- function(value) {
+    if (is_absent(value)) {
+      return(NA_character_)
     }
-    orcid_id <- if (!is.null(orcid_path) && !is.na(orcid_path)) {
-      orcid_path
-    } else {
-      NA_character_
-    }
-
-    # Helper function to safely extract and convert to character
-    extract_name_field <- function(field_name) {
-      val <- item[[field_name]]
-      if (is.null(val)) {
-        return(NA_character_)
-      }
-      if (length(val) == 0) {
-        return(NA_character_)
-      }
-      if (is.list(val)) {
-        # If it's a list, try to get the first non-null element
-        for (i in seq_along(val)) {
-          if (!is.null(val[[i]]) && length(val[[i]]) > 0) {
-            return(as.character(val[[i]]))
-          }
+    if (is.list(value)) {
+      for (element in value) {
+        if (!is_absent(element)) {
+          return(as.character(element[[1]]))
         }
-        return(NA_character_)
       }
-      # Direct value
-      as.character(val)
+      return(NA_character_)
     }
+    as.character(value[[1]])
+  }
 
-    # Extract name fields
-    given_names <- extract_name_field("given-names")
-    family_name <- extract_name_field("family-names")
-    credit_name <- extract_name_field("credit-name")
-
-    # Extract other names
-    other_names_val <- item[["other-names"]]
-    if (is.null(other_names_val)) {
-      # Try alternate field name
-      other_names_val <- item[["other-name"]]
+  parsed <- lapply(results, function(item) {
+    orcid_id <- extract_chr(item, "orcid-identifier", "path")
+    if (is.na(orcid_id)) {
+      orcid_id <- first_value(item[["orcid-id"]])
     }
-    other_names <- if (
-      !is.null(other_names_val) && length(other_names_val) > 0
-    ) {
-      if (is.list(other_names_val)) other_names_val else list(other_names_val)
-    } else {
-      list(character(0))
+    other_names <- item[["other-name"]]
+    if (is.null(other_names)) {
+      other_names <- item[["other-names"]]
     }
-
+    if (is_absent(other_names)) {
+      other_names <- character(0)
+    }
     list(
       orcid_id = orcid_id,
-      given_names = given_names,
-      family_name = family_name,
-      credit_name = credit_name,
-      other_names = other_names
+      given_names = first_value(item[["given-names"]]),
+      family_name = first_value(item[["family-names"]]),
+      credit_name = first_value(item[["credit-name"]]),
+      other_names = unlist(other_names, use.names = FALSE)
     )
   })
 
-  # Combine into data.table
   result <- data.table::data.table(
-    orcid_id = sapply(parsed, function(x) x$orcid_id),
-    given_names = sapply(parsed, function(x) x$given_names),
-    family_name = sapply(parsed, function(x) x$family_name),
-    credit_name = sapply(parsed, function(x) x$credit_name),
-    other_names = lapply(parsed, function(x) x$other_names)
+    orcid_id = vapply(parsed, `[[`, character(1), "orcid_id"),
+    given_names = vapply(parsed, `[[`, character(1), "given_names"),
+    family_name = vapply(parsed, `[[`, character(1), "family_name"),
+    credit_name = vapply(parsed, `[[`, character(1), "credit_name"),
+    other_names = lapply(parsed, `[[`, "other_names")
   )
-
-  # Add found attribute
   attr(result, "found") <- as.integer(num_found)
-
   result
 }

@@ -86,18 +86,3 @@ test_that("orcid_date_to_iso handles NULL and invalid input", {
   expect_true(is.na(orcid_date_to_iso(list())))
   expect_true(is.na(orcid_date_to_iso("not-a-list")))
 })
-
-test_that("has_env_var detects environment variables", {
-  old_val <- Sys.getenv("TEST_VAR", unset = "")
-
-  Sys.setenv(TEST_VAR = "value")
-  expect_true(has_env_var("TEST_VAR"))
-
-  Sys.unsetenv("TEST_VAR")
-  expect_false(has_env_var("TEST_VAR"))
-
-  # Restore
-  if (old_val != "") {
-    Sys.setenv(TEST_VAR = old_val)
-  }
-})

@@ -53,3 +53,7 @@ rsconnect/
 altdoc/freeze.rds
 /doc/
 /Meta/
+
+# covr report output
+coverage.html
+lib/

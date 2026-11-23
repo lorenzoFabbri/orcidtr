@@ -191,19 +191,41 @@ orcid_date_to_iso <- function(date_obj) {
 }
 
 
-#' Check if environment variable is set
+#' Test whether an extracted value is missing
 #'
 #' @description
-#' Utility to check if an environment variable is set and non-empty.
+#' `safe_extract()` returns `NA` for a missing path and the API returns `[]`
+#' for an empty list, so both count as absent alongside `NULL`.
 #'
-#' @param var Character string. Name of environment variable.
+#' @param x Value returned by `safe_extract()`.
 #'
-#' @return Logical. TRUE if set and non-empty, FALSE otherwise.
+#' @return Logical scalar.
 #' @keywords internal
 #' @noRd
-has_env_var <- function(var) {
-  val <- Sys.getenv(var, unset = "")
-  nchar(val) > 0
+is_absent <- function(x) {
+  is.null(x) || length(x) == 0 || (!is.list(x) && length(x) == 1 && is.na(x))
+}
+
+
+#' Extract a scalar field as character
+#'
+#' @description
+#' Wraps `safe_extract()` so that a missing field becomes `NA_character_`
+#' rather than a logical `NA`, which keeps column types stable when a field is
+#' missing from every row.
+#'
+#' @param x List. Nested list structure.
+#' @param ... Character strings. Path to value.
+#'
+#' @return Character scalar.
+#' @keywords internal
+#' @noRd
+extract_chr <- function(x, ...) {
+  value <- safe_extract(x, ...)
+  if (is_absent(value) || is.list(value)) {
+    return(NA_character_)
+  }
+  as.character(value[[1]])
 }
 
 
@@ -223,18 +245,7 @@ has_env_var <- function(var) {
 #' @keywords internal
 #' @noRd
 fetch_and_parse <- function(endpoint, orcid_id, parser, token = NULL, ...) {
-  # Normalize and validate ORCID
   orcid_id <- normalize_orcid(orcid_id)
-  validate_orcid(orcid_id, stop_on_error = TRUE)
-
-  # Make API request
-  response <- orcid_request(
-    endpoint = endpoint,
-    orcid_id = orcid_id,
-    token = token,
-    base_url = orcid_base_url()
-  )
-
-  # Parse and return
+  response <- orcid_request(endpoint, orcid_id, token = token)
   parser(response, orcid_id, ...)
 }

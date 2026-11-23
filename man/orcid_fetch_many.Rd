@@ -12,22 +12,21 @@ orcid_fetch_many(
 )
 }
 \arguments{
-\item{orcid_ids}{Character vector. Valid ORCID identifiers in the format
-XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-https://orcid.org/XXXX-XXXX-XXXX-XXXX.}
+\item{orcid_ids}{Character vector of ORCID iDs, in any form accepted by
+\code{orcid_id}.}
 
 \item{section}{Character string. Section to fetch. One of: "employments",
 "educations", "distinctions", "invited-positions", "memberships",
 "qualifications", "services", "research-resources", "works", "funding",
 or "peer-reviews".}
 
-\item{token}{Character string or NULL. Optional API token for authenticated
-requests. If NULL (default), no token is sent.}
+\item{token}{Character string or \code{NULL}. Optional \verb{/read-public} access
+token. The public API needs none: it returns the same public data either
+way, and a token only raises the daily read quota. See the Authentication
+section of \link{orcidtr-package}.}
 
-\item{stop_on_error}{Logical. If TRUE, stops on the first error. If FALSE
-(default), continues processing and returns results for successful
-requests,
-issuing warnings for failures.}
+\item{stop_on_error}{Logical. If \code{TRUE}, stop at the first invalid iD or
+failed request. If \code{FALSE} (default), warn and carry on with the rest.}
 }
 \value{
 A data.table combining results from all successful requests. The
@@ -39,14 +38,9 @@ that loops over a vector of ORCID iDs and fetches the specified section(s)
 for each. Results are combined into a single data.table.
 }
 \details{
-This function makes one API request per ORCID identifier. Be mindful of
-rate limits when fetching data for many ORCIDs.
-
-The function validates each ORCID identifier and normalizes formats before
-making requests.
-
-For rate limit compliance, consider adding delays between large batches
-or using authenticated requests which typically have higher rate limits.
+The function sends one request per iD, one after another. Without a token,
+ORCID allows 25,000 reads a day from one IP address, so batches larger than
+that need a \verb{/read-public} token or have to be spread over several days.
 }
 \examples{
 \dontrun{

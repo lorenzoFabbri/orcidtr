@@ -496,3 +496,67 @@ test_that("parse_search_results handles NULL result field", {
   expect_s3_class(result, "data.table")
   expect_equal(nrow(result), 0)
 })
+
+test_that("parsers return typed zero-row tables when the list key is missing", {
+  id <- "0000-0002-1825-0097"
+  parsers <- list(
+    parse_employments,
+    parse_educations,
+    parse_affiliations,
+    parse_works,
+    parse_funding,
+    parse_peer_reviews,
+    parse_research_resources,
+    parse_keywords,
+    parse_researcher_urls,
+    parse_external_identifiers,
+    parse_other_names,
+    parse_address,
+    parse_email
+  )
+  for (parser in parsers) {
+    result <- parser(list(), id)
+    expect_s3_class(result, "data.table")
+    expect_equal(nrow(result), 0)
+    expect_true("orcid" %in% names(result))
+  }
+})
+
+test_that("parse_activities gives each missing section its empty schema", {
+  result <- parse_activities(list(), "0000-0002-1825-0097")
+  expect_equal(nrow(result$works), 0)
+  expect_true("doi" %in% names(result$works))
+  expect_true("organization" %in% names(result$employments))
+})
+
+test_that("missing scalar fields stay character", {
+  result <- parse_person(list(), "0000-0002-1825-0097")
+  expect_type(result$credit_name, "character")
+  expect_type(result$country, "character")
+
+  works <- parse_works(
+    list(group = list(list(`work-summary` = list(list(`put-code` = 1))))),
+    "0000-0002-1825-0097"
+  )
+  expect_equal(works$put_code, "1")
+  expect_type(works$title, "character")
+  expect_type(works$journal, "character")
+})
+
+test_that("parse_search_results stores other names as character vectors", {
+  json_data <- list(
+    `num-found` = 1L,
+    `expanded-result` = list(
+      list(
+        `orcid-id` = "0000-0002-1825-0097",
+        `given-names` = "Josiah",
+        `family-names` = "Carberry",
+        `other-name` = list("J. Carberry", "Josiah S. Carberry")
+      )
+    )
+  )
+  result <- parse_search_results(json_data)
+  expect_equal(result$orcid_id, "0000-0002-1825-0097")
+  expect_equal(result$other_names[[1]], c("J. Carberry", "Josiah S. Carberry"))
+  expect_equal(attr(result, "found"), 1L)
+})

@@ -5,12 +5,13 @@
 #' ORCID identifier from the ORCID public API. Returns a structured data.table
 #' with work details including titles, types, DOIs, and publication dates.
 #'
-#' @param orcid_id Character string. A valid ORCID identifier in the format
-#'   XXXX-XXXX-XXXX-XXXX. Can also handle URLs like
-#'   https://orcid.org/XXXX-XXXX-XXXX-XXXX.
-#' @param token Character string or NULL. Optional API token for authenticated
-#'   requests. If NULL (default), no token is sent.
-#'   Most public data is accessible without authentication.
+#' @param orcid_id Character string. An ORCID iD such as
+#'   `"0000-0002-1825-0097"`. The dashes and an `https://orcid.org/` prefix are
+#'   optional.
+#' @param token Character string or `NULL`. Optional `/read-public` access
+#'   token. The public API needs none: it returns the same public data either
+#'   way, and a token only raises the daily read quota. See the Authentication
+#'   section of [orcidtr-package].
 #'
 #' @return A data.table with the following columns:
 #'   \describe{
@@ -36,9 +37,6 @@
 #' Works can include journal articles, books, datasets, conference papers,
 #' preprints, posters, and other scholarly outputs. The type field indicates
 #' the specific category of each work.
-#'
-#' The function respects ORCID API rate limits and includes appropriate
-#' User-Agent headers identifying the orcidtr package.
 #'
 #' @references
 #' ORCID API Documentation:

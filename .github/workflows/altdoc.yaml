@@ -8,7 +8,7 @@ on:
     types: [published, prereleased]
   workflow_dispatch:
 
-name: pkgdown.yaml
+name: altdoc.yaml
 
 permissions:
   contents: read

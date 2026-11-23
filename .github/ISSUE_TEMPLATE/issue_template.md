@@ -3,13 +3,9 @@ name: Bug report or feature request
 about: Describe a bug you've seen or make a case for a new feature
 ---
 
-Please briefly describe your problem and what output you expect. If you have a question, please don't use this form. Instead, ask on <https://stackoverflow.com/> or <https://community.rstudio.com/>.
+Describe the problem and the output you expected. For a question about using the package, ask on <https://forum.posit.co/> or Stack Overflow instead.
 
-Please include a minimal reproducible example (AKA a reprex). If you've never heard of a [reprex](http://reprex.tidyverse.org/) before, start by reading <https://www.tidyverse.org/help/#reprex>.
-
-For more advice on how to write a great issue, see <https://code-review.tidyverse.org/issues/>.
-
-Brief description of the problem
+Include a minimal reproducible example made with [reprex](https://reprex.tidyverse.org/), and the output of `packageVersion("orcidtr")`.
 
 ```r
 # insert reprex here

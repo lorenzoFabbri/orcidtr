@@ -7,21 +7,19 @@
 orcid_ping()
 }
 \value{
-Character string with API status message (typically "OK" if healthy)
+\code{"OK"} when the API reports itself healthy, otherwise a string
+giving the reported status.
 }
 \description{
-Checks the health and availability of the ORCID public API. Useful for
-diagnostics and ensuring the API is accessible before making requests.
+Queries the ORCID status endpoint to check that the public API is reachable
+and healthy.
 }
 \details{
-This function queries the ORCID API status endpoint:
-\code{https://pub.orcid.org/v3.0/status}
+This function queries \code{https://pub.orcid.org/v3.0/status}.
 }
 \examples{
 \dontrun{
-# Check API status
-status <- orcid_ping()
-print(status)
+orcid_ping()
 }
 
 }
